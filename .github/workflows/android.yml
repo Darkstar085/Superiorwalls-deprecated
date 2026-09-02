@@ -1,58 +1,108 @@
-name: "Bob The Builder"
+name: Superiorwalls APK Build
 
 on:
   push:
-    branches: [master]
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  TG_CHAT_ID: "-1001474066247"
+  REPO_URL: "https://github.com/Darkstar085/Superiorwalls"
 
 jobs:
   build:
+    name: Build & Deliver APK
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: "Fetching Materials"
-        uses: actions/setup-java@v4
-        with:
-          distribution: adopt
-          java-version: 17
-      - env:
-          GH_REPO: "${{ github.repository }}"
-          TG_BOT_KEY: "${{ secrets.TG_BOT_KEY }}"
-          GH_TOKEN: "${{ secrets.GH_TOKEN }}"
-        name: Construction
-        run: |
-          curl -s -X POST "https://api.telegram.org/bot${TG_BOT_KEY}/sendMessage" -d chat_id="-1001474066247" \
-            -d "disable_web_page_preview=true" \
-            -d "parse_mode=markdown" \
-            -d text="🤖 building with HEAD as [$(echo $GITHUB_SHA | cut -c1-8)](https://github.com/Sweeto143/Superiorwalls/commit/${GITHUB_SHA}) 🤖"
-          git clone -b builds --single-branch https://github.com/Sweeto143/Superiorwalls.git GitBuilds
-          cd GitBuilds
-          git reset --hard 2fffa5ed956096d688335211cfbac2338122365d
-          git reflog expire --all --expire=now
-          git gc --prune=now --aggressive
-          cd ..
-          ./gradlew assembleDebug
 
-          if [ -d app/build/outputs/apk/debug ]; then
-            if [ -n "$(ls -A app/build/outputs/apk/debug)" ]; then
-                cp app/build/outputs/apk/debug/*.apk GitBuilds/SuperiorWalls-$(echo $GITHUB_SHA | cut -c1-8).apk
-                cd GitBuilds
-                curl --progress-bar -F document=@"SuperiorWalls-$(echo $GITHUB_SHA | cut -c1-8).apk" "https://api.telegram.org/bot${TG_BOT_KEY}/sendDocument" \
-                  -F chat_id="-1001474066247"  \
-                  -F "disable_web_page_preview=true" \
-                  -F "parse_mode=Markdown" \
-                  -F caption="$1"
-                git config --global user.name 'Bob The Builder'
-                git config --global user.email 'bob@the.builder'
-                git add SuperiorWalls-$(echo $GITHUB_SHA | cut -c1-8).apk
-                git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GH_REPO}"
-                git commit -m "bot: build installables <$(echo $GITHUB_SHA | cut -c1-8)>"
-                git push -u origin builds -f
-            fi
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Make Gradle executable
+        run: chmod +x ./gradlew
+
+      - name: Send build started
+        env:
+          TG_BOT_KEY: ${{ secrets.TG_BOT_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -z "${TG_BOT_KEY:-}" ]; then
+            echo "TG_BOT_KEY secret is not configured."
+            exit 1
           fi
 
-          curl -s -X POST "https://api.telegram.org/bot${TG_BOT_KEY}/sendMessage" -d chat_id="-1001474066247" \
-            -d "disable_web_page_preview=true" \
-            -d "parse_mode=markdown" \
-            -d text="🤖 workflow for [$(echo $GITHUB_SHA | cut -c1-8)](https://github.com/Sweeto143/Superiorwalls/commit/${GITHUB_SHA}) finished 🤖"
-          curl -s -X POST "https://api.telegram.org/bot${TG_BOT_KEY}/sendSticker" -d chat_id="-1001474066247" \
-           -d "sticker=CAACAgUAAxkBAAJZC16o8nKludxrMtal8Z8scZF1KBxDAAIwAANYEFMOHtCRfFrn1NgZBA"
+          SHORT_SHA="${GITHUB_SHA::8}"
+
+          curl --fail --silent --show-error --retry 3 -X POST "https://api.telegram.org/bot${TG_BOT_KEY}/sendMessage" -d "chat_id=${TG_CHAT_ID}" -d "disable_web_page_preview=true" -d "parse_mode=Markdown" --data-urlencode "text=🤖 Superiorwalls build started — [${SHORT_SHA}](${REPO_URL}/commit/${GITHUB_SHA})"
+
+      - name: Build APK
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Prepare APK
+        id: apk
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          APK="$(find app/build/outputs/apk/debug -maxdepth 1 -type f -name '*.apk' | head -n 1)"
+
+          if [ -z "$APK" ]; then
+            echo "No APK was produced."
+            exit 1
+          fi
+
+          SHORT_SHA="${GITHUB_SHA::8}"
+          APK_NAME="Superiorwalls-${SHORT_SHA}.apk"
+
+          cp "$APK" "$APK_NAME"
+
+          echo "path=$APK_NAME" >> "$GITHUB_OUTPUT"
+          echo "name=$APK_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Push APK to Telegram
+        env:
+          TG_BOT_KEY: ${{ secrets.TG_BOT_KEY }}
+          APK_PATH: ${{ steps.apk.outputs.path }}
+          APK_NAME: ${{ steps.apk.outputs.name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          curl --fail --silent --show-error --retry 3 -F "document=@${APK_PATH};filename=${APK_NAME}" -F "chat_id=${TG_CHAT_ID}" -F "disable_web_page_preview=true" -F "parse_mode=Markdown" --form-string "caption=📦 Superiorwalls APK — ${GITHUB_SHA::8}" "https://api.telegram.org/bot${TG_BOT_KEY}/sendDocument"
+
+      - name: Send build finished
+        if: success()
+        env:
+          TG_BOT_KEY: ${{ secrets.TG_BOT_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          SHORT_SHA="${GITHUB_SHA::8}"
+
+          curl --fail --silent --show-error --retry 3 -X POST "https://api.telegram.org/bot${TG_BOT_KEY}/sendMessage" -d "chat_id=${TG_CHAT_ID}" -d "disable_web_page_preview=true" -d "parse_mode=Markdown" --data-urlencode "text=✅ Superiorwalls build finished — [${SHORT_SHA}](${REPO_URL}/commit/${GITHUB_SHA})"
+
+      - name: Send build failed
+        if: failure()
+        env:
+          TG_BOT_KEY: ${{ secrets.TG_BOT_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          SHORT_SHA="${GITHUB_SHA::8}"
+
+          curl --fail --silent --show-error --retry 3 -X POST "https://api.telegram.org/bot${TG_BOT_KEY}/sendMessage" -d "chat_id=${TG_CHAT_ID}" -d "disable_web_page_preview=true" -d "parse_mode=Markdown" --data-urlencode "text=❌ Superiorwalls build failed — [${SHORT_SHA}](${REPO_URL}/commit/${GITHUB_SHA})"
