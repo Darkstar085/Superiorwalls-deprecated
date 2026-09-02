@@ -1,0 +1,159 @@
+name: Superiorwalls Release
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "buildSrc/src/main/java/Superiorwalls.kt"
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build & Create GitHub Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Read version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          VERSION_NAME="$(
+            sed -n 's/.*const val versionName = "\([^"]*\)".*/\1/p' buildSrc/src/main/java/Superiorwalls.kt
+          )"
+
+          if [ -z "$VERSION_NAME" ]; then
+            echo "Could not determine versionName."
+            exit 1
+          fi
+
+          TAG="$VERSION_NAME"
+
+          echo "version=$VERSION_NAME" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Check existing release
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release $TAG already exists. Nothing to do."
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Find previous release
+        if: steps.release.outputs.exists != 'true'
+        id: previous
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          PREVIOUS_TAG="$(
+            gh release list --repo "$GITHUB_REPOSITORY" --limit 1 --json tagName --jq '.[0].tagName // empty'
+          )"
+
+          echo "tag=$PREVIOUS_TAG" >> "$GITHUB_OUTPUT"
+
+          if [ -n "$PREVIOUS_TAG" ]; then
+            echo "Previous release: $PREVIOUS_TAG"
+          else
+            echo "No previous release found."
+          fi
+
+      - name: Build APK
+        if: steps.release.outputs.exists != 'true'
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --stacktrace
+
+      - name: Prepare release APK
+        if: steps.release.outputs.exists != 'true'
+        id: apk
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          APK="$(find app/build/outputs/apk/debug -maxdepth 1 -type f -name '*.apk' | head -n 1)"
+
+          if [ -z "$APK" ]; then
+            echo "No APK was produced."
+            exit 1
+          fi
+
+          VERSION="${{ steps.version.outputs.version }}"
+          APK_NAME="Superiorwalls_v${VERSION}.apk"
+
+          cp "$APK" "$APK_NAME"
+          echo "path=$APK_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Generate changelog
+        if: steps.release.outputs.exists != 'true'
+        id: changelog
+        env:
+          PREVIOUS_TAG: ${{ steps.previous.outputs.tag }}
+          VERSION: ${{ steps.version.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          {
+            echo "## What's Changed"
+            echo
+
+            if [ -n "$PREVIOUS_TAG" ]; then
+              git log --no-merges --pretty=format:'- %s ([%h](https://github.com/'"$GITHUB_REPOSITORY"'/commit/%H))' "${PREVIOUS_TAG}..HEAD"
+
+              echo
+              echo
+              echo "**Full Changelog:** https://github.com/${GITHUB_REPOSITORY}/compare/${PREVIOUS_TAG}...${VERSION}"
+            else
+              git log --no-merges --pretty=format:'- %s ([%h](https://github.com/'"$GITHUB_REPOSITORY"'/commit/%H))'
+
+              echo
+              echo
+              echo "**Full Changelog:** https://github.com/${GITHUB_REPOSITORY}/commits/${VERSION}"
+            fi
+          } > RELEASE_NOTES.md
+
+          echo "Generated release notes:"
+          cat RELEASE_NOTES.md
+
+      - name: Create GitHub release
+        if: steps.release.outputs.exists != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+          VERSION: ${{ steps.version.outputs.version }}
+          APK_PATH: ${{ steps.apk.outputs.path }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          gh release create "$TAG" "$APK_PATH" --repo "$GITHUB_REPOSITORY" --title "Superiorwalls v${VERSION}" --notes-file RELEASE_NOTES.md
