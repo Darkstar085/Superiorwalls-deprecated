@@ -2,6 +2,6 @@
 
 object Superiorwalls {
     const val appId = "com.sipun.superiorwalls"
-    const val version = 335
-    const val versionName = "3.3.5"
+    const val version = 336
+    const val versionName = "3.3.6"
 }
