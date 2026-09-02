@@ -32,7 +32,6 @@
     <string name="cancel">İmtina</string>
     <string name="search">Axtar</string>
     <string name="changelog">Dəyişiklik jurnalı</string>
-    <string name="donate">İanə ver</string>
     <string name="about">Haqqında</string>
     <string name="settings">Tənzimləmələr</string>
     <string name="app_theme">Görünüş</string>
@@ -96,9 +95,6 @@
     <string name="action_error_content">Nəsə səhv getdi.</string>
     <string name="license_error_content">Lisenziya yoxlanıla bilmir.</string>
     <string name="try_now">Yenidən sına</string>
-    <string name="donate_success_title">İanə göndərildi</string>
-    <string name="donate_success_content">Dəstəyiniz üçün təşəkkürlər.</string>
-    <string name="donate_error">Nəsə səhv getdi. Xəta kodu: %1$s.</string>
     <string name="close">Bağla</string>
     <string name="open">Aç</string>
     <string name="get">Əldə et</string>

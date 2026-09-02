@@ -32,7 +32,6 @@
     <string name="cancel">Скасувати</string>
     <string name="search">Пошук</string>
     <string name="changelog">Список змін</string>
-    <string name="donate">Пожертвувати</string>
     <string name="about">Про програму</string>
     <string name="settings">Налаштування</string>
     <string name="app_theme">Зовнішній вигляд</string>
@@ -96,9 +95,6 @@
     <string name="action_error_content">Щось пішло не так.</string>
     <string name="license_error_content">Вибачте, сталася помилка під час спроби перевірити вашу ліцензію. Спробуйте ще раз пізніше.</string>
     <string name="try_now">Повторити спробу</string>
-    <string name="donate_success_title">Пожертва надіслана</string>
-    <string name="donate_success_content">Дякуємо за вашу підтримку.</string>
-    <string name="donate_error">Щось пішло не так. Код помилки: %1$s.</string>
     <string name="close">Закрити</string>
     <string name="open">Відкрити</string>
     <string name="get">Отримати</string>

@@ -17,12 +17,6 @@
         android:title="@string/changelog"
         app:showAsAction="never" />
 
-    <item
-        android:id="@+id/donate"
-        android:icon="@drawable/ic_donate"
-        android:orderInCategory="300"
-        android:title="@string/donate"
-        app:showAsAction="never" />
 
     <item
         android:id="@+id/about"

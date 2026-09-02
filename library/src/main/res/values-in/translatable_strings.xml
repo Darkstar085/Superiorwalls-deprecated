@@ -32,7 +32,6 @@
     <string name="cancel">Batal</string>
     <string name="search">Cari</string>
     <string name="changelog">Catatan Perubahan</string>
-    <string name="donate">Donasi</string>
     <string name="about">Tentang</string>
     <string name="settings">Setelan</string>
     <string name="app_theme">Penampilan</string>
@@ -96,9 +95,6 @@
     <string name="action_error_content">Terjadi kesalahan.</string>
     <string name="license_error_content">Tidak dapat memeriksa lisensi.</string>
     <string name="try_now">Coba lagi</string>
-    <string name="donate_success_title">Donasi terkirim</string>
-    <string name="donate_success_content">Terima kasih atas dukungan Anda.</string>
-    <string name="donate_error">Terjadi kesalahan. Kode eror: %1$s.</string>
     <string name="close">Tutup</string>
     <string name="open">Buka</string>
     <string name="get">Dapatkan</string>

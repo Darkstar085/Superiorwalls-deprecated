@@ -32,7 +32,6 @@
     <string name="cancel">Anulare</string>
     <string name="search">Căutare</string>
     <string name="changelog">Jurnal de modificări</string>
-    <string name="donate">Donează</string>
     <string name="about">Despre</string>
     <string name="settings">Setări</string>
     <string name="app_theme">Aspect</string>
@@ -96,9 +95,6 @@
     <string name="action_error_content">Ceva a mers prost.</string>
     <string name="license_error_content">Licența nu poate fi verificată.</string>
     <string name="try_now">Reîncearcă</string>
-    <string name="donate_success_title">Donație trimisă</string>
-    <string name="donate_success_content">Îți mulțumim pentru susținere.</string>
-    <string name="donate_error">A apărut o eroare. Cod de eroare: %1$s.</string>
     <string name="close">Închide</string>
     <string name="open">Deschide</string>
     <string name="get">Obține</string>

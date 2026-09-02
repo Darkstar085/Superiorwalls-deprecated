@@ -32,7 +32,6 @@
     <string name="cancel">取消</string>
     <string name="search">搜索</string>
     <string name="changelog">更新日志</string>
-    <string name="donate">捐赠</string>
     <string name="about">关于</string>
     <string name="settings">设置</string>
     <string name="app_theme">外观</string>
@@ -96,9 +95,6 @@
     <string name="action_error_content">发生未知错误。</string>
     <string name="license_error_content">无法检查许可证。</string>
     <string name="try_now">重试</string>
-    <string name="donate_success_title">捐款已发送</string>
-    <string name="donate_success_content">感谢您的支持。</string>
-    <string name="donate_error">出错了，错误代码： %1$s</string>
     <string name="close">关闭</string>
     <string name="open">打开</string>
     <string name="get">获取</string>

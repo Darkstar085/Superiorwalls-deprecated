@@ -32,7 +32,6 @@
     <string name="cancel">Cancel</string>
     <string name="search">Search</string>
     <string name="changelog">Changelog</string>
-    <string name="donate">Donate</string>
     <string name="about">About</string>
     <string name="settings">Settings</string>
     <string name="app_theme">Appearance</string>
@@ -96,9 +95,6 @@
     <string name="action_error_content">Something went wrong.</string>
     <string name="license_error_content">Can’t check license.</string>
     <string name="try_now">Retry</string>
-    <string name="donate_success_title">Donation Sent</string>
-    <string name="donate_success_content">Thank you for your support.</string>
-    <string name="donate_error">Something went wrong. Error code: %1$s.</string>
     <string name="close">Close</string>
     <string name="open">Open</string>
     <string name="get">Get</string>

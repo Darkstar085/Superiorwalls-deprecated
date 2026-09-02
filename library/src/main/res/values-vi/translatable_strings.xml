@@ -32,7 +32,6 @@
     <string name="cancel">Hủy bỏ</string>
     <string name="search">Tìm kiếm</string>
     <string name="changelog">Nhật ký thay đổi</string>
-    <string name="donate">Ủng hộ</string>
     <string name="about">Về chúng tôi</string>
     <string name="settings">Cài đặt</string>
     <string name="app_theme">Giao diện</string>
@@ -96,9 +95,6 @@
     <string name="action_error_content">Đã xảy ra lỗi.</string>
     <string name="license_error_content">Không thể kiểm tra giấy phép.</string>
     <string name="try_now">Thử lại</string>
-    <string name="donate_success_title">Đóng góp đã gửi</string>
-    <string name="donate_success_content">Cảm ơn sự hỗ trợ của bạn.</string>
-    <string name="donate_error">Có lỗi xảy ra. Tên lỗi: \"%1$s\".</string>
     <string name="close">Đóng</string>
     <string name="open">Mở</string>
     <string name="get">Nhận</string>

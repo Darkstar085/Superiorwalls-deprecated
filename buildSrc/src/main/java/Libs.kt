@@ -67,10 +67,6 @@ object Libs {
     // Permissions
     private const val permissions = "com.github.fondesa:kpermissions:${Versions.permissions}"
 
-    // In-App Billing
-    private const val inAppBilling =
-        "com.android.billingclient:billing-ktx:${Versions.inAppBilling}"
-
     // MultiDex
     private const val multidex = "androidx.multidex:multidex:${Versions.multidex}"
 
@@ -107,7 +103,6 @@ object Libs {
         sectionedRecyclerView,
         fastScrollRecyclerView,
         permissions,
-        inAppBilling,
         multidex,
         muzei
     )

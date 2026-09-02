@@ -32,7 +32,6 @@
     <string name="cancel">Zrušit</string>
     <string name="search">Hledat</string>
     <string name="changelog">Seznam změn</string>
-    <string name="donate">Přispět</string>
     <string name="about">Informace</string>
     <string name="settings">Nastavení</string>
     <string name="app_theme">Vzhled</string>
@@ -96,9 +95,6 @@
     <string name="action_error_content">Něco se pokazilo.</string>
     <string name="license_error_content">Nelze zkontrolovat licenci.</string>
     <string name="try_now">Opakovat</string>
-    <string name="donate_success_title">Příspěvek odeslán</string>
-    <string name="donate_success_content">Děkujeme vám za vaši podporu.</string>
-    <string name="donate_error">Něco se pokazilo. Kód chyby je: %1$s.</string>
     <string name="close">Zavřít</string>
     <string name="open">Otevřít</string>
     <string name="get">Získat</string>

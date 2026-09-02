@@ -19,13 +19,13 @@ import com.sipun.superiorwalls.library.extensions.context.getAppName
 import com.sipun.superiorwalls.library.extensions.context.string
 import com.sipun.superiorwalls.library.extensions.context.toast
 import com.sipun.superiorwalls.library.extensions.resources.hasContent
-import com.sipun.superiorwalls.library.ui.activities.base.BaseBillingActivity
 import com.sipun.superiorwalls.library.ui.fragments.CollectionsFragment
 import com.sipun.superiorwalls.library.ui.fragments.WallpapersFragment
 import com.sipun.superiorwalls.library.ui.fragments.base.BaseWallpaperFragment
+import com.sipun.superiorwalls.library.ui.activities.base.BaseChangelogDialogActivity
 
 @Suppress("LeakingThis", "MemberVisibilityCanBePrivate")
-abstract class SuperiorwallsActivity : BaseBillingActivity<Preferences>() {
+abstract class SuperiorwallsActivity : BaseChangelogDialogActivity<Preferences>() {
 
     override val preferences: Preferences by lazy { Preferences(this) }
 
@@ -123,7 +123,6 @@ abstract class SuperiorwallsActivity : BaseBillingActivity<Preferences>() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.settings -> startActivity(Intent(this, SettingsActivity::class.java))
-            /**R.id.donate -> showDonationsDialog()**/
         }
         return super.onOptionsItemSelected(item)
     }

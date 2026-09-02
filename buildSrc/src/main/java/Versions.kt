@@ -55,9 +55,6 @@ object Versions {
     // Permissions
     const val permissions = "3.5.0"
 
-    // In-App Billing
-    const val inAppBilling = "8.0.0"
-
     // MultiDex
     const val multidex = "2.0.1"
 

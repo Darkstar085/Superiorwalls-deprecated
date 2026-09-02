@@ -32,7 +32,6 @@
     <string name="cancel">Cancelar</string>
     <string name="search">Procurar</string>
     <string name="changelog">Registro de alterações</string>
-    <string name="donate">Doar</string>
     <string name="about">Sobre</string>
     <string name="settings">Configurações</string>
     <string name="app_theme">Aparência</string>
@@ -96,9 +95,6 @@
     <string name="action_error_content">Algo deu errado.</string>
     <string name="license_error_content">Licença não pode verificar.</string>
     <string name="try_now">Tentar novamente</string>
-    <string name="donate_success_title">Doação Enviada</string>
-    <string name="donate_success_content">Obrigado pelo seu apoio.</string>
-    <string name="donate_error">Algo deu errado. Código de erro: %1$s.</string>
     <string name="close">Fechar</string>
     <string name="open">Abrir</string>
     <string name="get">Obter</string>
