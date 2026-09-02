@@ -9,7 +9,7 @@
         <attr name="overlayColor" format="reference|color" />
     </declare-styleable>
 
-    <declare-styleable name="FramesBottomNavigationView">
+    <declare-styleable name="SuperiorwallsBottomNavigationView">
         <attr name="forceRightColor" format="reference|boolean" />
     </declare-styleable>
 

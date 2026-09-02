@@ -12,7 +12,7 @@
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/section_title"
-        style="@style/TextStyle.Frames.Subtitle2"
+        style="@style/TextStyle.Superiorwalls.Subtitle2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingStart="16dp"
@@ -24,7 +24,7 @@
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/section_subtitle"
-        style="@style/TextStyle.Frames.Body2"
+        style="@style/TextStyle.Superiorwalls.Body2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingStart="16dp"

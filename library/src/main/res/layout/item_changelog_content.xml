@@ -13,7 +13,7 @@
     <!--padding bottom is 14sp * 0.6-->
     <TextView
         android:id="@+id/kau_changelog_bullet"
-        style="@style/TextStyle.Frames.Body2"
+        style="@style/TextStyle.Superiorwalls.Body2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:clickable="false"
@@ -26,7 +26,7 @@
 
     <TextView
         android:id="@+id/kau_changelog_text"
-        style="@style/TextStyle.Frames.Body2"
+        style="@style/TextStyle.Superiorwalls.Body2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clickable="false"

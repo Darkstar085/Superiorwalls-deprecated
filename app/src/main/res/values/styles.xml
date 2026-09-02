@@ -2,39 +2,39 @@
 <resources>
     <!--
         Learn how to setup this file at:
-        https://github.com/jahirfiquitiva/Frames/wiki/Setting-custom-styles
+        https://github.com/jahirfiquitiva/Superiorwalls/wiki/Setting-custom-styles
     -->
     <style name="MyApp" />
 
     <!--
         Splash screen theme follow device's theme
         You can change the parent to any of these:
-        - Frames.SplashScreen
-        - Frames.SplashScreen.Amoled
-        - Frames.SplashScreen.MaterialYou
-        - Frames.SplashScreen.Amoled.MaterialYou
+        - Superiorwalls.SplashScreen
+        - Superiorwalls.SplashScreen.Amoled
+        - Superiorwalls.SplashScreen.MaterialYou
+        - Superiorwalls.SplashScreen.Amoled.MaterialYou
     -->
-    <style name="MyApp.SplashScreen" parent="Frames.SplashScreen">
+    <style name="MyApp.SplashScreen" parent="Superiorwalls.SplashScreen">
         <item name="customFontBold">@font/manrope_bold_fam</item>
         <item name="customFontNormal">@font/manrope_normal_fam</item>
     </style>
 
     <!-- Don't change the parent style -->
-    <style name="MyApp.Default" parent="Frames.Default">
+    <style name="MyApp.Default" parent="Superiorwalls.Default">
         <item name="bottomNavigationStyle">@style/MyApp.BottomNavigationView</item>
         <item name="customFontBold">@font/manrope_bold_fam</item>
         <item name="customFontNormal">@font/manrope_normal_fam</item>
     </style>
 
     <!-- Don't change the parent style -->
-    <style name="MyApp.Default.Amoled" parent="Frames.Default.Amoled">
+    <style name="MyApp.Default.Amoled" parent="Superiorwalls.Default.Amoled">
         <item name="bottomNavigationStyle">@style/MyApp.BottomNavigationView</item>
         <item name="customFontBold">@font/manrope_bold_fam</item>
         <item name="customFontNormal">@font/manrope_normal_fam</item>
     </style>
 
     <!-- Don't change the parent style -->
-    <style name="MyApp.BottomNavigationView" parent="Widget.Frames.BottomNavigationView">
+    <style name="MyApp.BottomNavigationView" parent="Widget.Superiorwalls.BottomNavigationView">
         <!--
             Switch bottom navigation labels visibility style
             You can use any of there:

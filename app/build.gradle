@@ -4,19 +4,6 @@ apply plugin: 'kotlin-parcelize'
 apply plugin: 'com.google.devtools.ksp'
 
 android {
-    signingConfigs {
-        release {
-            keyAlias 'frames'
-            keyPassword 'frames'
-            storeFile file('frames.jks')
-            storePassword 'frames'
-            enableV1Signing true
-            enableV2Signing true
-            enableV3Signing true
-            enableV4Signing true
-        }
-    }
-
     applicationVariants.configureEach { variant ->
         variant.outputs.configureEach { output ->
             outputFileName = defaultConfig.applicationId + "-v${variant.versionName}-${variant.name}.apk"
@@ -29,19 +16,14 @@ android {
         disable 'MissingTranslation', 'GoogleAppIndexingWarning'
     }
 
-    namespace Frames.appId
+    namespace Superiorwalls.appId
     defaultConfig {
-        buildConfigField("String", "ONESIGNAL_APP_ID", "\"$OneSignal.appId\"")
-        manifestPlaceholders = [
-                onesignal_app_id               : OneSignal.appId,
-                onesignal_google_project_number: OneSignal.googleProjectNumber
-        ]
-        applicationId Frames.appId
+        applicationId Superiorwalls.appId
         minSdkVersion Versions.minSdk
         compileSdk Versions.targetSdk
         targetSdkVersion Versions.targetSdk
-        versionCode Frames.version
-        versionName Frames.versionName
+        versionCode Superiorwalls.version
+        versionName Superiorwalls.versionName
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
         proguardFiles 'proguard-android-optimize.txt', 'proguard-rules.pro'
@@ -58,9 +40,6 @@ android {
     }
 
     buildTypes {
-        buildTypes.each {
-            it.buildConfigField("String", "ONESIGNAL_APP_ID", "\"$OneSignal.appId\"")
-        }
         release {
             debuggable false
             zipAlignEnabled true
@@ -68,7 +47,6 @@ android {
             shrinkResources false
             proguardFiles 'proguard-android-optimize.txt', 'proguard-rules.pro'
             consumerProguardFiles 'proguard-android-optimize.txt', 'proguard-rules.pro'
-            signingConfig signingConfigs.release
         }
     }
 
@@ -104,6 +82,4 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':library')
-    // TODO: Remove comment marks to enable
-    // implementation Libs.oneSignal
 }

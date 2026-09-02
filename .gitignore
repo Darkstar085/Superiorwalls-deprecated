@@ -91,3 +91,6 @@ proguard/
 app/release
 .project
 .classpath
+
+# Local signing keys
+*.jks

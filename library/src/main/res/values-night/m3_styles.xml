@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="NewApi">
 
-    <style name="Frames.SplashScreen.Amoled.MaterialYou" parent="Frames.SplashScreen.MaterialYou">
+    <style name="Superiorwalls.SplashScreen.Amoled.MaterialYou" parent="Superiorwalls.SplashScreen.MaterialYou">
         <item name="android:windowBackground">@drawable/splash_screen_amoled</item>
 
         <item name="colorPrimary">@color/m3_amoledThemePrimary</item>
@@ -33,7 +33,7 @@
         <item name="colorOnTertiaryContainer">@color/m3_amoledThemeOnTertiaryContainer</item>
     </style>
 
-    <style name="Frames.Default.Amoled.MaterialYou" parent="Frames.Default.MaterialYou">
+    <style name="Superiorwalls.Default.Amoled.MaterialYou" parent="Superiorwalls.Default.MaterialYou">
         <item name="colorPrimary">@color/m3_amoledThemePrimary</item>
         <item name="colorPrimaryDark">@color/m3_amoledThemePrimaryDark</item>
         <item name="colorAccent">@color/m3_amoledThemeAccent</item>

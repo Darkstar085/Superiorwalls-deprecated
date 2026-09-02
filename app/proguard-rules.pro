@@ -20,13 +20,12 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keep class dev.jahir.frames.** { *; }
+-keep class com.sipun.superiorwalls.library.** { *; }
 
 -keep class androidx.core.app.CoreComponentFactory { *; }
 -keep class com.google.**
 -keep class autovalue.shaded.com.google.**
 -keep class com.android.vending.billing.**
--keep public class com.android.vending.licensing.ILicensingService
 
 -dontwarn org.apache.**
 -dontwarn com.google.**

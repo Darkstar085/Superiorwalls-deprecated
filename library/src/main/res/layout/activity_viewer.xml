@@ -55,7 +55,7 @@
                     android:id="@+id/toolbar_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textAppearance="@style/TextAppearance.Frames.ToolbarTitle.Viewer"
+                    android:textAppearance="@style/TextAppearance.Superiorwalls.ToolbarTitle.Viewer"
                     android:textColor="@color/white"
                     android:textStyle="bold"
                     tools:text="Title" />
@@ -103,9 +103,9 @@
         app:srcCompat="@drawable/ic_go_next"
         tools:ignore="UnusedAttribute" />
 
-    <dev.jahir.frames.ui.widgets.FramesBottomNavigationView
+    <com.sipun.superiorwalls.library.ui.widgets.SuperiorwallsBottomNavigationView
         android:id="@+id/bottom_navigation"
-        style="@style/Widget.Frames.ViewerBottomNavigationView"
+        style="@style/Widget.Superiorwalls.ViewerBottomNavigationView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"

@@ -1,7 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="com.android.vending.CHECK_LICENSE" />
     <uses-permission
         android:name="android.permission.WRITE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
@@ -35,7 +34,7 @@
         tools:ignore="GoogleAppIndexingWarning,UnusedAttribute">
 
         <activity
-            android:name=".ui.activities.FramesActivity"
+            android:name=".ui.activities.SuperiorwallsActivity"
             android:exported="false" />
 
         <activity

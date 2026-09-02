@@ -28,7 +28,7 @@
 
         <TextView
             android:id="@+id/name"
-            style="@style/TextStyle.Frames.Subtitle1"
+            style="@style/TextStyle.Superiorwalls.Subtitle1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
@@ -41,7 +41,7 @@
 
         <TextView
             android:id="@+id/description"
-            style="@style/TextStyle.Frames.Body2"
+            style="@style/TextStyle.Superiorwalls.Body2"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="8dp"
@@ -53,7 +53,7 @@
             android:paddingRight="16dp"
             tools:text="@string/jahir_description" />
 
-        <dev.jahir.frames.ui.widgets.AboutButtonsLayout
+        <com.sipun.superiorwalls.library.ui.widgets.AboutButtonsLayout
             android:id="@+id/buttons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -4,7 +4,7 @@ apply plugin: 'kotlin-parcelize'
 apply plugin: 'com.google.devtools.ksp'
 
 android {
-    namespace 'dev.jahir.frames'
+    namespace 'com.sipun.superiorwalls.library'
 
     lint {
         abortOnError false
@@ -23,8 +23,8 @@ android {
         minSdkVersion Versions.minSdk
         compileSdk Versions.targetSdk
         targetSdkVersion Versions.targetSdk
-        versionCode Frames.version
-        versionName Frames.versionName
+        versionCode Superiorwalls.version
+        versionName Superiorwalls.versionName
         vectorDrawables.useSupportLibrary true
         multiDexEnabled true
         proguardFiles 'proguard-android-optimize.txt', 'proguard-rules.pro'
@@ -39,8 +39,8 @@ android {
 
     buildTypes {
         buildTypes.each {
-            it.buildConfigField("String", "DASHBOARD_NAME", "\"Frames\"")
-            it.buildConfigField("String", "DASHBOARD_VERSION", "\"$Frames.versionName\"")
+            it.buildConfigField("String", "DASHBOARD_NAME", "\"Superiorwalls\"")
+            it.buildConfigField("String", "DASHBOARD_VERSION", "\"$Superiorwalls.versionName\"")
         }
         release {
             minifyEnabled false
@@ -83,12 +83,3 @@ dependencies {
     api Libs.dependencies
     ksp Libs.kspDependencies
 }
-
-ext {
-    PUBLISH_GROUP_ID = 'dev.jahir'
-    PUBLISH_VERSION = Frames.versionName
-    PUBLISH_ARTIFACT_ID = 'Frames'
-}
-
-apply from: '../lib-artifacts.gradle'
-apply from: "${rootProject.projectDir}/scripts/publish-mavencentral.gradle"

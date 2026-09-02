@@ -1,5 +1,5 @@
 package com.sipun.superiorwalls
 
-import dev.jahir.frames.muzei.FramesArtProvider
+import com.sipun.superiorwalls.library.muzei.SuperiorwallsArtProvider
 
-class MuzeiService : FramesArtProvider()
+class MuzeiService : SuperiorwallsArtProvider()

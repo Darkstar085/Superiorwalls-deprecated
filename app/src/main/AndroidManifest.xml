@@ -1,7 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Permission required for donations. Remove it if you don't use it -->
     <uses-permission android:name="com.android.vending.BILLING" />
 
     <application
@@ -90,13 +89,8 @@
                 android:value="@color/accent" />
             <meta-data
                 android:name="settingsActivity"
-                android:value="dev.jahir.frames.ui.activities.MuzeiSettingsActivity" />
+                android:value="com.sipun.superiorwalls.library.ui.activities.MuzeiSettingsActivity" />
         </provider>
 
-        <!-- OneSignal Notifications Service -->
-        <!-- TODO: Remove comment marks to enable
-         <meta-data android:name="com.onesignal.NotificationServiceExtension"
-               android:value="${applicationId}.NotificationServiceExtension" />
-        -->
     </application>
 </manifest>

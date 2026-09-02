@@ -15,7 +15,7 @@
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/section_title"
-            style="@style/TextStyle.Frames.Headline6"
+            style="@style/TextStyle.Superiorwalls.Headline6"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="4sp"
@@ -26,7 +26,7 @@
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/section_subtitle"
-            style="@style/TextStyle.Frames.Caption"
+            style="@style/TextStyle.Superiorwalls.Caption"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"

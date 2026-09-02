@@ -81,7 +81,7 @@
 
         <androidx.preference.Preference
             android:title="Jahir Fiquitiva"
-            android:summary="Frames Dashboard Developer">
+            android:summary="Superiorwalls Dashboard Developer">
             <intent android:action="android.intent.action.VIEW"
                 android:data="https://github.com/jahirfiquitiva/" />
         </androidx.preference.Preference>

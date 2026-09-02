@@ -1,41 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="ShapeAppearance.Frames.SmallComponent" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+    <style name="ShapeAppearance.Superiorwalls.SmallComponent" parent="ShapeAppearance.MaterialComponents.SmallComponent">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">@dimen/small_components_corner_size</item>
     </style>
 
-    <style name="ShapeAppearance.Frames.MediumComponent" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+    <style name="ShapeAppearance.Superiorwalls.MediumComponent" parent="ShapeAppearance.MaterialComponents.MediumComponent">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">@dimen/medium_components_corner_size</item>
     </style>
 
-    <style name="ShapeAppearance.Frames.LargeComponent" parent="ShapeAppearance.MaterialComponents.LargeComponent">
+    <style name="ShapeAppearance.Superiorwalls.LargeComponent" parent="ShapeAppearance.MaterialComponents.LargeComponent">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">@dimen/large_components_corner_size</item>
     </style>
 
-    <style name="ShapeAppearance.Frames.CardView" parent="ShapeAppearance.Frames.MediumComponent">
+    <style name="ShapeAppearance.Superiorwalls.CardView" parent="ShapeAppearance.Superiorwalls.MediumComponent">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">@dimen/cards_corner_size</item>
     </style>
 
-    <style name="ShapeAppearance.Frames.Wallpapers" parent="ShapeAppearance.Frames.CardView" />
+    <style name="ShapeAppearance.Superiorwalls.Wallpapers" parent="ShapeAppearance.Superiorwalls.CardView" />
 
-    <style name="Widget.Frames.MaterialCardView" parent="Widget.MaterialComponents.CardView">
-        <item name="shapeAppearance">@style/ShapeAppearance.Frames.CardView</item>
+    <style name="Widget.Superiorwalls.MaterialCardView" parent="Widget.MaterialComponents.CardView">
+        <item name="shapeAppearance">@style/ShapeAppearance.Superiorwalls.CardView</item>
         <item name="cardElevation">@dimen/cards_elevation</item>
     </style>
 
-    <style name="Frames.Dialogs.Title" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
+    <style name="Superiorwalls.Dialogs.Title" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
         <item name="fontFamily">?attr/customFontBold</item>
     </style>
 
-    <style name="Frames.Dialogs" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+    <style name="Superiorwalls.Dialogs" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
         <item name="colorPrimary">?colorSecondary</item>
-        <item name="materialButtonStyle">@style/Frames.Dialogs.Button</item>
-        <item name="materialAlertDialogTitleTextStyle">@style/Frames.Dialogs.Title</item>
+        <item name="materialButtonStyle">@style/Superiorwalls.Dialogs.Button</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/Superiorwalls.Dialogs.Title</item>
     </style>
 
 </resources>

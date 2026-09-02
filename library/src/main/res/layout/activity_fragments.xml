@@ -21,7 +21,7 @@
             android:layout_height="?actionBarSize"
             android:background="?colorPrimary"
             android:minHeight="?actionBarSize"
-            app:titleTextAppearance="@style/TextAppearance.Frames.ToolbarTitle" />
+            app:titleTextAppearance="@style/TextAppearance.Superiorwalls.ToolbarTitle" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

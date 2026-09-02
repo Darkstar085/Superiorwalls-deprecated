@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center" />
 
-    <dev.jahir.frames.ui.widgets.LandscapeImageView
+    <com.sipun.superiorwalls.library.ui.widgets.LandscapeImageView
         android:id="@+id/wallpaper_image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -41,7 +41,7 @@
 
         <TextView
             android:id="@+id/collection_title"
-            style="@style/TextStyle.Frames.CollectionTitle"
+            style="@style/TextStyle.Superiorwalls.CollectionTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -53,7 +53,7 @@
 
         <TextView
             android:id="@+id/collection_count"
-            style="@style/TextStyle.Frames.CollectionCount"
+            style="@style/TextStyle.Superiorwalls.CollectionCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"

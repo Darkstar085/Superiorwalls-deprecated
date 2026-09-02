@@ -67,19 +67,12 @@ object Libs {
     // Permissions
     private const val permissions = "com.github.fondesa:kpermissions:${Versions.permissions}"
 
-    // License checker
-    private const val licenseChecker =
-        "com.github.javiersantos:PiracyChecker:${Versions.licenseChecker}"
-
     // In-App Billing
     private const val inAppBilling =
         "com.android.billingclient:billing-ktx:${Versions.inAppBilling}"
 
     // MultiDex
     private const val multidex = "androidx.multidex:multidex:${Versions.multidex}"
-
-    // OneSignal
-    const val oneSignal = "com.onesignal:OneSignal:${Versions.oneSignal}"
 
     // Muzei API
     const val muzei = "com.google.android.apps.muzei:muzei-api:${Versions.muzei}"
@@ -114,7 +107,6 @@ object Libs {
         sectionedRecyclerView,
         fastScrollRecyclerView,
         permissions,
-        licenseChecker,
         inAppBilling,
         multidex,
         muzei
