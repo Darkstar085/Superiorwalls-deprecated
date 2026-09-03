@@ -60,14 +60,20 @@ fun WallpaperBrowser(
     }
 
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 156.dp),
+        columns = GridCells.Adaptive(minSize = 158.dp),
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 8.dp, bottom = 28.dp),
+        contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 10.dp, bottom = 32.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         items(wallpapers, key = { it.url }) { wallpaper ->
-            WallpaperCard(wallpaper, canModifyFavorites, { onWallpaperClick(wallpaper) }, { onFavoriteClick(wallpaper, it) }, Modifier.animateContentSize())
+            WallpaperCard(
+                wallpaper = wallpaper,
+                canModifyFavorites = canModifyFavorites,
+                onClick = { onWallpaperClick(wallpaper) },
+                onFavoriteClick = { onFavoriteClick(wallpaper, it) },
+                modifier = Modifier.animateContentSize(),
+            )
         }
     }
 }
@@ -87,24 +93,71 @@ private fun WallpaperCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
-        Box(Modifier.fillMaxWidth().height(250.dp).clip(RoundedCornerShape(24.dp))) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(252.dp)
+                .clip(RoundedCornerShape(24.dp)),
+        ) {
             AsyncImage(
                 model = wallpaper.thumbnail?.takeIf { it.isNotBlank() } ?: wallpaper.url,
                 contentDescription = wallpaper.name,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop,
             )
-            Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0f to Color.Transparent, .55f to Color.Transparent, 1f to Color.Black.copy(alpha = .78f))))
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            0f to Color.Transparent,
+                            .58f to Color.Transparent,
+                            1f to Color.Black.copy(alpha = .84f),
+                        ),
+                    ),
+            )
             if (canModifyFavorites) {
-                Surface(Modifier.align(Alignment.TopEnd).padding(10.dp), CircleShape, color = MaterialTheme.colorScheme.surface.copy(alpha = .88f)) {
-                    IconButton(onClick = { onFavoriteClick(!wallpaper.isInFavorites) }, Modifier.size(44.dp)) {
-                        Icon(if (wallpaper.isInFavorites) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder, if (wallpaper.isInFavorites) "Remove from favorites" else "Add to favorites", tint = MaterialTheme.colorScheme.primary)
+                Surface(
+                    modifier = Modifier.align(Alignment.TopEnd).padding(10.dp),
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = .90f),
+                    tonalElevation = 2.dp,
+                ) {
+                    IconButton(
+                        onClick = { onFavoriteClick(!wallpaper.isInFavorites) },
+                        modifier = Modifier.size(44.dp),
+                    ) {
+                        Icon(
+                            imageVector = if (wallpaper.isInFavorites) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                            contentDescription = if (wallpaper.isInFavorites) "Remove from favorites" else "Add to favorites",
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
                     }
                 }
             }
-            Column(Modifier.align(Alignment.BottomStart).fillMaxWidth().padding(15.dp)) {
-                Text(wallpaper.name, color = Color.White, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                wallpaper.author?.takeIf { it.isNotBlank() }?.let { Spacer(Modifier.height(3.dp)); Text(it, color = Color.White.copy(alpha = .78f), style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+            Column(
+                Modifier
+                    .align(Alignment.BottomStart)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 15.dp),
+            ) {
+                Text(
+                    wallpaper.name,
+                    color = Color.White,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                wallpaper.author?.takeIf { it.isNotBlank() }?.let {
+                    Spacer(Modifier.height(3.dp))
+                    Text(
+                        it,
+                        color = Color.White.copy(alpha = .78f),
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             }
         }
     }

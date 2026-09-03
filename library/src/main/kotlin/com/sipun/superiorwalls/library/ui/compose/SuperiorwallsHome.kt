@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -43,7 +44,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -84,7 +84,11 @@ fun SuperiorwallsHome(
         HomeDestination.FAVORITES -> favorites
         HomeDestination.COLLECTIONS -> emptyList()
     }
-    val filtered = if (query.isBlank()) source else source.filter { it.name.contains(query, true) || it.author.orEmpty().contains(query, true) || it.collections.orEmpty().contains(query, true) }
+    val filtered = if (query.isBlank()) source else source.filter {
+        it.name.contains(query, true) ||
+            it.author.orEmpty().contains(query, true) ||
+            it.collections.orEmpty().contains(query, true)
+    }
 
     SuperiorwallsTheme(darkTheme = useDarkTheme, dynamicColor = useDynamicColor, amoled = useAmoled) {
         val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -93,14 +97,45 @@ fun SuperiorwallsHome(
             topBar = {
                 if (searchOpen) {
                     SearchBar(
-                        inputField = { SearchBarDefaults.InputField(query = query, onQueryChange = { query = it }, onSearch = { searchOpen = false }, expanded = false, onExpandedChange = { searchOpen = it }, placeholder = { Text("Search wallpapers") }, leadingIcon = { Icon(Icons.Rounded.Search, null) }, trailingIcon = { IconButton(onClick = { query = ""; searchOpen = false }) { Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Close search") } }) },
+                        inputField = {
+                            SearchBarDefaults.InputField(
+                                query = query,
+                                onQueryChange = { query = it },
+                                onSearch = { searchOpen = false },
+                                expanded = false,
+                                onExpandedChange = { searchOpen = it },
+                                placeholder = { Text("Search wallpapers") },
+                                leadingIcon = { Icon(Icons.Rounded.Search, null) },
+                                trailingIcon = {
+                                    IconButton(onClick = { query = ""; searchOpen = false }) {
+                                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Close search")
+                                    }
+                                },
+                            )
+                        },
                         expanded = false,
                         onExpandedChange = { searchOpen = it },
                     ) {}
                 } else {
                     LargeTopAppBar(
-                        title = { Column { Text("Superiorwalls"); Text(when (current) { HomeDestination.WALLPAPERS -> "Discover something beautiful"; HomeDestination.COLLECTIONS -> "Curated collections"; HomeDestination.FAVORITES -> "Your saved wallpapers" }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) } },
-                        actions = { IconButton(onClick = { searchOpen = true }) { Icon(Icons.Rounded.Search, "Search") }; IconButton(onClick = onSettingsClick) { Icon(Icons.Rounded.Settings, "Settings") } },
+                        title = {
+                            Column {
+                                Text("Superiorwalls")
+                                Text(
+                                    when (current) {
+                                        HomeDestination.WALLPAPERS -> "Discover something beautiful"
+                                        HomeDestination.COLLECTIONS -> "Curated collections"
+                                        HomeDestination.FAVORITES -> "Your saved wallpapers"
+                                    },
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        },
+                        actions = {
+                            IconButton(onClick = { searchOpen = true }) { Icon(Icons.Rounded.Search, "Search") }
+                            IconButton(onClick = onSettingsClick) { Icon(Icons.Rounded.Settings, "Settings") }
+                        },
                         scrollBehavior = scrollBehavior,
                     )
                 }
@@ -113,10 +148,15 @@ fun SuperiorwallsHome(
                 }
             },
         ) { padding ->
-            AnimatedContent(targetState = current, modifier = Modifier.fillMaxSize().padding(padding), transitionSpec = { fadeIn() togetherWith fadeOut() }, label = "home_destination") { screen ->
+            AnimatedContent(
+                targetState = current,
+                modifier = Modifier.fillMaxSize().padding(padding),
+                transitionSpec = { fadeIn() togetherWith fadeOut() },
+                label = "home_destination",
+            ) { screen ->
                 when (screen) {
                     HomeDestination.COLLECTIONS -> CollectionGrid(collections, onCollectionClick)
-                    HomeDestination.WALLPAPERS -> WallpaperBrowser(filtered, canModifyFavorites, onWallpaperClick, onFavoriteClick, emptyTitle = "No wallpapers found", emptyMessage = "Pull in a fresh collection or try another search.")
+                    HomeDestination.WALLPAPERS -> WallpaperBrowser(filtered, canModifyFavorites, onWallpaperClick, onFavoriteClick, emptyTitle = "No wallpapers found", emptyMessage = "Try another search or refresh your collection.")
                     HomeDestination.FAVORITES -> WallpaperBrowser(filtered, canModifyFavorites, onWallpaperClick, onFavoriteClick, emptyTitle = "Nothing saved yet", emptyMessage = "Tap the heart on a wallpaper to keep it here.")
                 }
             }
@@ -126,17 +166,41 @@ fun SuperiorwallsHome(
 
 @Composable
 private fun CollectionGrid(collections: List<Collection>, onClick: (Collection) -> Unit) {
-    if (collections.isEmpty()) { EmptyState("No collections yet", "Collections appear here after wallpapers load."); return }
-    LazyVerticalGrid(columns = GridCells.Adaptive(240.dp), contentPadding = PaddingValues(16.dp), horizontalArrangement = Arrangement.spacedBy(14.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        items(collections, key = { it.name }) { collection ->
-            Surface(onClick = { onClick(collection) }, shape = RoundedCornerShape(28.dp), color = MaterialTheme.colorScheme.surfaceContainer) {
-                Box(Modifier.height(220.dp)) {
-                    AsyncImage(model = collection.cover?.thumbnail ?: collection.cover?.url, contentDescription = collection.displayName, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-                    Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = .88f)))))
-                    Column(Modifier.align(Alignment.BottomStart).fillMaxWidth().padding(18.dp)) {
-                        Text(collection.displayName, color = Color.White, style = MaterialTheme.typography.titleLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Spacer(Modifier.height(4.dp))
-                        Text("${collection.count} wallpapers", color = Color.White.copy(alpha = .78f), style = MaterialTheme.typography.bodyMedium)
+    if (collections.isEmpty()) {
+        EmptyState("No collections yet", "Collections appear here after wallpapers load.")
+        return
+    }
+    Column(Modifier.fillMaxSize()) {
+        Column(Modifier.padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 4.dp)) {
+            Text("Explore", style = MaterialTheme.typography.titleLarge)
+            Text("Browse wallpapers by mood and theme", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(240.dp),
+            modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            items(collections, key = { it.name }) { collection ->
+                Surface(
+                    onClick = { onClick(collection) },
+                    shape = RoundedCornerShape(28.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainer,
+                ) {
+                    Box(Modifier.height(220.dp)) {
+                        AsyncImage(
+                            model = collection.cover?.thumbnail ?: collection.cover?.url,
+                            contentDescription = collection.displayName,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop,
+                        )
+                        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = .88f)))))
+                        Column(Modifier.align(Alignment.BottomStart).fillMaxWidth().padding(18.dp)) {
+                            Text(collection.displayName, color = Color.White, style = MaterialTheme.typography.titleLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Spacer(Modifier.height(4.dp))
+                            Text("${collection.count} wallpapers", color = Color.White.copy(alpha = .78f), style = MaterialTheme.typography.bodyMedium)
+                        }
                     }
                 }
             }
@@ -148,7 +212,9 @@ private fun CollectionGrid(collections: List<Collection>, onClick: (Collection) 
 fun EmptyState(title: String, message: String) {
     Box(Modifier.fillMaxSize().padding(32.dp), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Surface(shape = CircleShape, color = MaterialTheme.colorScheme.secondaryContainer) { Icon(Icons.Rounded.Favorite, null, Modifier.padding(18.dp).size(34.dp), tint = MaterialTheme.colorScheme.onSecondaryContainer) }
+            Surface(shape = CircleShape, color = MaterialTheme.colorScheme.secondaryContainer) {
+                Icon(Icons.Rounded.Favorite, null, Modifier.padding(18.dp).size(34.dp), tint = MaterialTheme.colorScheme.onSecondaryContainer)
+            }
             Spacer(Modifier.height(16.dp))
             Text(title, style = MaterialTheme.typography.titleLarge)
             Spacer(Modifier.height(6.dp))
