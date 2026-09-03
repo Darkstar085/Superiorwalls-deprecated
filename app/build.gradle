@@ -4,12 +4,6 @@ apply plugin: 'kotlin-parcelize'
 apply plugin: 'com.google.devtools.ksp'
 
 android {
-    applicationVariants.configureEach { variant ->
-        variant.outputs.configureEach { output ->
-            outputFileName = defaultConfig.applicationId + "-v${variant.versionName}-${variant.name}.apk"
-        }
-    }
-
     lint {
         abortOnError false
         checkReleaseBuilds true
@@ -66,6 +60,16 @@ android {
 
     buildFeatures {
         buildConfig = true
+    }
+}
+
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.outputs.each { output ->
+            output.outputFileName.set(
+                    "${variant.applicationId.get()}-v${output.versionName.get()}-${variant.name}.apk"
+            )
+        }
     }
 }
 
