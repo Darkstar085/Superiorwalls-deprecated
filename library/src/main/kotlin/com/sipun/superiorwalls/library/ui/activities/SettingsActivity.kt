@@ -1,24 +1,23 @@
 package com.sipun.superiorwalls.library.ui.activities
 
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.os.Bundle
-import android.view.MenuItem
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.Toolbar
+import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatDelegate
 import com.sipun.superiorwalls.library.BuildConfig
-import com.sipun.superiorwalls.library.R
 import com.sipun.superiorwalls.library.data.Preferences
-import com.sipun.superiorwalls.library.extensions.context.findView
 import com.sipun.superiorwalls.library.extensions.context.setDefaultDashboardTheme
-import com.sipun.superiorwalls.library.extensions.views.tint
 import com.sipun.superiorwalls.library.ui.activities.base.BaseThemedActivity
-import com.sipun.superiorwalls.library.ui.fragments.SettingsFragment
+import com.sipun.superiorwalls.library.ui.compose.SettingsScreen
+import com.sipun.superiorwalls.library.ui.compose.SuperiorwallsTheme
 
 open class SettingsActivity : BaseThemedActivity<Preferences>() {
 
-    private val preferencesListener: SharedPreferences.OnSharedPreferenceChangeListener by lazy {
+    override val preferences: Preferences by lazy { Preferences(this) }
+
+    private val preferencesListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, prefKey ->
-            prefKey ?: return@OnSharedPreferenceChangeListener
             when (prefKey) {
                 Preferences.CURRENT_THEME -> {
                     setDefaultDashboardTheme()
@@ -29,47 +28,38 @@ open class SettingsActivity : BaseThemedActivity<Preferences>() {
                 Preferences.SHOULD_COLOR_NAVBAR -> onThemeChanged()
             }
         }
-    }
-
-    override val preferences: Preferences by lazy { Preferences(this) }
-    private val toolbar: Toolbar? by findView(R.id.toolbar)
-
-    open fun getSettingsFragment(): SettingsFragment =
-        SettingsFragment.create(dashboardName, dashboardVersion)
-
-    private var preferenceDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         preferences.registerOnSharedPreferenceChangeListener(preferencesListener)
-        setContentView(R.layout.activity_fragments)
 
-        setSupportActionBar(toolbar)
-        supportActionBar?.let {
-            it.setHomeButtonEnabled(true)
-            it.setDisplayHomeAsUpEnabled(true)
-            it.setDisplayShowHomeEnabled(true)
+        setContent {
+            val themeKey = preferences.currentTheme.value
+            val darkTheme = when (themeKey) {
+                Preferences.ThemeKey.DARK.value -> true
+                Preferences.ThemeKey.LIGHT.value -> false
+                else -> resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+            }
+            SuperiorwallsTheme(
+                darkTheme = darkTheme,
+                dynamicColor = preferences.useMaterialYou,
+                amoled = preferences.usesAmoledTheme,
+            ) {
+                SettingsScreen(
+                    preferences = preferences,
+                    dashboardName = dashboardName,
+                    dashboardVersion = dashboardVersion,
+                    onBack = { supportFinishAfterTransition() },
+                    onThemeChanged = { onThemeChanged(); recreate() },
+                    onRequestNotificationsPermission = { requestNotificationsPermission() },
+                )
+            }
         }
-        toolbar?.tint()
-
-        replaceFragment(getSettingsFragment(), SettingsFragment.TAG)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) supportFinishAfterTransition()
-        return super.onOptionsItemSelected(item)
-    }
-
-    fun showDialog(dialog: AlertDialog?) {
-        preferenceDialog?.dismiss()
-        preferenceDialog = dialog
-        preferenceDialog?.show()
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         preferences.unregisterOnSharedPreferenceChangeListener(preferencesListener)
-        preferenceDialog?.dismiss()
+        super.onDestroy()
     }
 
     open val dashboardName: String = BuildConfig.DASHBOARD_NAME
