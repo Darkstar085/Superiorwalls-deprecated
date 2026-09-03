@@ -1,9 +1,9 @@
 @file:Suppress("unused")
 
 object Versions {
-    const val gradle = "9.3.0"
-    const val kotlin = "2.2.0"
-    const val ksp = "$kotlin-2.0.2"
+    const val gradle = "9.4.0"
+    const val kotlin = "2.4.10"
+    const val ksp = "2.3.11"
 
     const val minSdk = 26
     const val targetSdk = 37
@@ -18,12 +18,12 @@ object Versions {
 
     const val composeBom = "2026.08.00"
     const val activityCompose = "1.13.0"
-    const val lifecycleCompose = "2.10.0"
+    const val lifecycleCompose = "2.11.0"
 
-    const val lifecycle = "2.9.2"
+    const val lifecycle = "2.11.0"
     const val lifecycleExt = "2.2.0"
-    const val room = "2.7.2"
-    const val work = "2.10.3"
+    const val room = "2.8.4"
+    const val work = "2.11.2"
 
     const val gson = "2.13.1"
     const val retrofit = "3.0.0"
