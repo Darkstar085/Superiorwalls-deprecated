@@ -7,8 +7,11 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AlertDialog
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.view.WindowCompat
-import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import androidx.palette.graphics.Palette
 import com.sipun.superiorwalls.library.R
@@ -32,21 +35,23 @@ import com.sipun.superiorwalls.library.extensions.utils.MAX_PALETTE_COLORS
 import com.sipun.superiorwalls.library.ui.activities.base.BaseWallpaperApplierActivity
 import com.sipun.superiorwalls.library.ui.compose.SuperiorwallsTheme
 import com.sipun.superiorwalls.library.ui.compose.ViewerScreen
+import com.sipun.superiorwalls.library.ui.compose.WallpaperApplyDialog
+import com.sipun.superiorwalls.library.ui.compose.WallpaperDetailsSheet
 import com.sipun.superiorwalls.library.ui.fragments.WallpapersFragment.Companion.WALLPAPER_EXTRA
-import com.sipun.superiorwalls.library.ui.fragments.viewer.DetailsFragment
-import com.sipun.superiorwalls.library.ui.fragments.viewer.SetAsOptionsDialog
 import kotlinx.coroutines.launch
 
 open class ViewerActivity : BaseWallpaperApplierActivity<Preferences>() {
     override val preferences: Preferences by lazy { Preferences(this) }
-    private var wallpaper by androidx.compose.runtime.mutableStateOf<Wallpaper?>(null)
+    private var wallpaper by mutableStateOf<Wallpaper?>(null)
+    private var palette by mutableStateOf<Palette?>(null)
+    private var showDetails by mutableStateOf(false)
+    private var showApply by mutableStateOf(false)
+    private var selectedApplyOption by mutableStateOf<Int?>(null)
     private var favoritesModified = false
     private var isInFavorites = false
     private var collectionName: String? = null
     private var isForFavs = false
-    private val detailsFragment: DetailsFragment by lazy { DetailsFragment.create(shouldShowPaletteDetails = shouldShowWallpapersPalette()) }
     private var downloadBlockedDialog: AlertDialog? = null
-    private var applierDialog: DialogFragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,8 +75,8 @@ open class ViewerActivity : BaseWallpaperApplierActivity<Preferences>() {
         value.isInFavorites = isInFavorites || value.isInFavorites
         wallpaper = value
         isInFavorites = value.isInFavorites
+        palette = null
         initWallpaperFetcher(value)
-        detailsFragment.wallpaper = value
         loadWallpapersData()
         render()
     }
@@ -93,13 +98,35 @@ open class ViewerActivity : BaseWallpaperApplierActivity<Preferences>() {
                     onBack = { supportFinishAfterTransition() },
                     onPrevious = { navigatePrevious(current) },
                     onNext = { navigateNext(current) },
-                    onDetails = { detailsFragment.show(supportFragmentManager, DETAILS_TAG) },
+                    onDetails = { showDetails = true },
                     onDownload = ::checkForDownload,
-                    onApply = ::showApplyDialog,
+                    onApply = { selectedApplyOption = null; showApply = true },
                     onFavorite = { toggleFavorite(current) },
                     onToggleSystemUi = { toggleSystemUI() },
                     onImageLoaded = ::generatePalette,
                 )
+                if (showDetails) {
+                    WallpaperDetailsSheet(
+                        wallpaper = current,
+                        palette = palette,
+                        showPalette = shouldShowWallpapersPalette(),
+                        onDismiss = { showDetails = false },
+                    )
+                }
+                if (showApply) {
+                    WallpaperApplyDialog(
+                        selectedOption = selectedApplyOption,
+                        onOptionSelected = { selectedApplyOption = it },
+                        onConfirm = {
+                            selectedApplyOption?.let { option ->
+                                val actualOption = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) option else option + 2
+                                showApply = false
+                                startApply(actualOption)
+                            }
+                        },
+                        onDismiss = { showApply = false },
+                    )
+                }
             }
         }
     }
@@ -125,9 +152,9 @@ open class ViewerActivity : BaseWallpaperApplierActivity<Preferences>() {
     private fun generatePalette(drawable: Drawable?) {
         if (!shouldShowWallpapersPalette()) return
         drawable?.asBitmap()?.let { bitmap ->
-            Palette.from(bitmap).maximumColorCount(MAX_PALETTE_COLORS * 2).generate { palette ->
-                detailsFragment.palette = palette
-                palette?.bestSwatch?.rgb?.let { window.statusBarColor = it; window.navigationBarColor = it }
+            Palette.from(bitmap).maximumColorCount(MAX_PALETTE_COLORS * 2).generate { generated ->
+                palette = generated
+                generated?.bestSwatch?.rgb?.let { window.statusBarColor = it; window.navigationBarColor = it }
             }
         }
     }
@@ -163,11 +190,6 @@ open class ViewerActivity : BaseWallpaperApplierActivity<Preferences>() {
         downloadBlockedDialog?.show()
     }
 
-    private fun showApplyDialog() {
-        dismissApplierDialog()
-        applierDialog = SetAsOptionsDialog().also { it.show(supportFragmentManager, SetAsOptionsDialog.TAG) }
-    }
-
     override fun internalOnPermissionsGranted(permission: String) {
         super.internalOnPermissionsGranted(permission)
         if (permission == Manifest.permission.WRITE_EXTERNAL_STORAGE) startDownload()
@@ -176,15 +198,14 @@ open class ViewerActivity : BaseWallpaperApplierActivity<Preferences>() {
     open fun handleNavigationItemSelected(itemId: Int, wallpaper: Wallpaper?): Boolean {
         wallpaper ?: return false
         when (itemId) {
-            R.id.details -> detailsFragment.show(supportFragmentManager, DETAILS_TAG)
+            R.id.details -> showDetails = true
             R.id.download -> checkForDownload()
-            R.id.apply -> showApplyDialog()
+            R.id.apply -> { selectedApplyOption = null; showApply = true }
             R.id.favorites -> toggleFavorite(wallpaper)
         }
         return false
     }
 
-    private fun dismissApplierDialog() { try { applierDialog?.dismiss() } catch (_: Exception) {}; applierDialog = null }
     private fun dismissDownloadBlockedDialog() { try { downloadBlockedDialog?.dismiss() } catch (_: Exception) {}; downloadBlockedDialog = null }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -205,9 +226,7 @@ open class ViewerActivity : BaseWallpaperApplierActivity<Preferences>() {
         super.finish()
     }
 
-    override fun onDestroy() {
-        dismissApplierDialog(); dismissDownloadBlockedDialog(); super.onDestroy()
-    }
+    override fun onDestroy() { dismissDownloadBlockedDialog(); super.onDestroy() }
 
     private fun shouldShowWallpapersPalette(): Boolean = boolean(R.bool.show_wallpaper_palette_details, true)
     open fun shouldShowDownloadOption() = true
@@ -225,7 +244,6 @@ open class ViewerActivity : BaseWallpaperApplierActivity<Preferences>() {
         internal const val SHARED_IMAGE_NAME = "thumb.jpg"
         internal const val TRANSITION_NAME = "wallpaper_transition_container"
         internal const val IS_FOR_FAVS = "viewer_is_for_favs"
-        private const val DETAILS_TAG = "DETAILS_FRAG"
         private const val IS_IN_FAVORITES_KEY = "is_in_favorites"
     }
 }
