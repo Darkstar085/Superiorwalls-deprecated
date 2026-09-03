@@ -1,6 +1,5 @@
 apply plugin: 'com.android.library'
-apply plugin: 'org.jetbrains.kotlin.android'
-apply plugin: 'kotlin-parcelize'
+apply plugin: 'org.jetbrains.kotlin.plugin.parcelize'
 apply plugin: 'com.google.devtools.ksp'
 
 android {
