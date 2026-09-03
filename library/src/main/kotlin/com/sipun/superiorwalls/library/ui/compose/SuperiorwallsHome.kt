@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.CollectionsBookmark
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.GridView
@@ -113,7 +114,7 @@ fun SuperiorwallsHome(
                                 leadingIcon = { Icon(Icons.Rounded.Search, null) },
                                 trailingIcon = {
                                     IconButton(onClick = { query = ""; searchOpen = false }) {
-                                        Icon(Icons.Rounded.Search, "Close search")
+                                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Close search")
                                     }
                                 },
                             )
