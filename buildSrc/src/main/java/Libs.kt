@@ -8,8 +8,6 @@ object Libs {
     private const val appcompat = "androidx.appcompat:appcompat:${Versions.appcompat}"
     private const val appcompatResources = "androidx.appcompat:appcompat-resources:${Versions.appcompat}"
     private const val cardView = "androidx.cardview:cardview:${Versions.cardView}"
-    private const val recyclerView = "androidx.recyclerview:recyclerview:${Versions.recyclerView}"
-    private const val swipeRefreshLayout = "androidx.swiperefreshlayout:swiperefreshlayout:${Versions.swipeRefreshLayout}"
     private const val palette = "androidx.palette:palette:${Versions.palette}"
     private const val preference = "androidx.preference:preference:${Versions.preference}"
     private const val materialComponents = "com.google.android.material:material:${Versions.materialComponents}"
@@ -42,22 +40,19 @@ object Libs {
     private const val coil = "io.coil-kt:coil:${Versions.coil}"
     private const val touchImageView = "com.github.MikeOrtiz:TouchImageView:${Versions.touchImageView}"
     private const val harmonicColors = "com.github.LeonardoSM04:HarmonicColorExtractor:${Versions.harmonicColors}"
-    private const val sectionedRecyclerView = "com.jahirfiquitiva:sectioned-recyclerview:${Versions.sectionedRecyclerView}@aar"
-    private const val fastScrollRecyclerView = "com.github.jahirfiquitiva:RecyclerView-FastScroll:${Versions.fastScrollRecyclerView}"
     private const val permissions = "com.github.fondesa:kpermissions:${Versions.permissions}"
     private const val multidex = "androidx.multidex:multidex:${Versions.multidex}"
     const val muzei = "com.google.android.apps.muzei:muzei-api:${Versions.muzei}"
 
     val dependencies = arrayOf(
         kotlin, coroutines, coroutinesAndroid,
-        appcompat, appcompatResources, cardView, recyclerView, swipeRefreshLayout,
-        palette, preference, materialComponents, activityKtx, fragmentKtx,
+        appcompat, appcompatResources, cardView, palette, preference,
+        materialComponents, activityKtx, fragmentKtx,
         composeBom, composeUi, composeUiToolingPreview, composeMaterial3,
         composeMaterialIcons, composeRuntimeLiveData, composeActivity, composeLifecycle, coilCompose,
         lifecycle, livedataKtx, viewmodelKtx, room, work,
         gson, retrofit, retrofitGsonConverter, retrofitScalarsConverter,
-        coil, touchImageView, harmonicColors, sectionedRecyclerView,
-        fastScrollRecyclerView, permissions, multidex, muzei
+        coil, touchImageView, harmonicColors, permissions, multidex, muzei
     )
 
     val kspDependencies = arrayOf(roomCompiler)

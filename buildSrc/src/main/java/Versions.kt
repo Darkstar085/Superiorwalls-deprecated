@@ -13,8 +13,6 @@ object Versions {
 
     const val appcompat = "1.7.1"
     const val cardView = "1.0.0"
-    const val recyclerView = "1.4.0"
-    const val swipeRefreshLayout = "1.1.0"
     const val palette = "1.0.0"
     const val preference = "1.2.1"
     const val materialComponents = "1.12.0"
@@ -37,8 +35,6 @@ object Versions {
     const val touchImageView = "3.7.1"
 
     const val harmonicColors = "1.0.0"
-    const val sectionedRecyclerView = "ea9a5cb"
-    const val fastScrollRecyclerView = "9463d46"
     const val permissions = "3.5.0"
     const val multidex = "2.0.1"
     const val muzei = "3.4.2"
