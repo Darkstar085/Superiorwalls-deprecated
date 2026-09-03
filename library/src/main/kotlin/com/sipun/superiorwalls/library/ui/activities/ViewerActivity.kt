@@ -1,44 +1,20 @@
-@file:Suppress("DEPRECATION")
-
 package com.sipun.superiorwalls.library.ui.activities
 
 import android.Manifest
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.drawable.BitmapDrawable
+import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.view.GestureDetector
-import android.view.MenuItem
-import android.view.MotionEvent
-import android.view.View
-import android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-import android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-import android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-import android.view.Window
-import android.view.WindowManager
-import android.widget.TextView
-import androidx.annotation.ColorInt
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.AppCompatImageButton
-import androidx.appcompat.widget.Toolbar
-import androidx.core.graphics.drawable.toDrawable
-import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import androidx.palette.graphics.Palette
-import coil.dispose
-import com.google.android.material.navigation.NavigationBarView
-import com.google.android.material.transition.platform.MaterialContainerTransform
-import com.google.android.material.transition.platform.MaterialContainerTransformSharedElementCallback
-import com.ortiz.touchview.TouchImageView
 import com.sipun.superiorwalls.library.R
 import com.sipun.superiorwalls.library.data.Preferences
 import com.sipun.superiorwalls.library.data.models.Wallpaper
 import com.sipun.superiorwalls.library.extensions.context.boolean
-import com.sipun.superiorwalls.library.extensions.context.color
-import com.sipun.superiorwalls.library.extensions.context.compliesWithMinTime
-import com.sipun.superiorwalls.library.extensions.context.findView
 import com.sipun.superiorwalls.library.extensions.context.firstInstallTime
 import com.sipun.superiorwalls.library.extensions.context.isNetworkAvailable
 import com.sipun.superiorwalls.library.extensions.context.isWifiConnected
@@ -51,344 +27,120 @@ import com.sipun.superiorwalls.library.extensions.fragments.message
 import com.sipun.superiorwalls.library.extensions.fragments.positiveButton
 import com.sipun.superiorwalls.library.extensions.fragments.title
 import com.sipun.superiorwalls.library.extensions.resources.asBitmap
-import com.sipun.superiorwalls.library.extensions.resources.hasContent
 import com.sipun.superiorwalls.library.extensions.resources.toReadableTime
 import com.sipun.superiorwalls.library.extensions.utils.MAX_PALETTE_COLORS
-import com.sipun.superiorwalls.library.extensions.utils.bestSwatch
-import com.sipun.superiorwalls.library.extensions.views.gone
-import com.sipun.superiorwalls.library.extensions.views.loadWallpaperPic
-import com.sipun.superiorwalls.library.extensions.views.setPaddingBottom
-import com.sipun.superiorwalls.library.extensions.views.setPaddingLeft
-import com.sipun.superiorwalls.library.extensions.views.setPaddingRight
-import com.sipun.superiorwalls.library.extensions.views.setPaddingTop
-import com.sipun.superiorwalls.library.extensions.views.tint
-import com.sipun.superiorwalls.library.extensions.views.visible
-import com.sipun.superiorwalls.library.extensions.views.visibleIf
 import com.sipun.superiorwalls.library.ui.activities.base.BaseWallpaperApplierActivity
+import com.sipun.superiorwalls.library.ui.compose.SuperiorwallsTheme
+import com.sipun.superiorwalls.library.ui.compose.ViewerScreen
 import com.sipun.superiorwalls.library.ui.fragments.WallpapersFragment.Companion.WALLPAPER_EXTRA
 import com.sipun.superiorwalls.library.ui.fragments.viewer.DetailsFragment
 import com.sipun.superiorwalls.library.ui.fragments.viewer.SetAsOptionsDialog
 import kotlinx.coroutines.launch
 
 open class ViewerActivity : BaseWallpaperApplierActivity<Preferences>() {
-
     override val preferences: Preferences by lazy { Preferences(this) }
-
-    private val toolbar: Toolbar? by findView(R.id.toolbar)
-    private val imageView: TouchImageView? by findView(R.id.wallpaper)
-
-    private var firstImageLoad: Boolean = true
-    private var transitioned: Boolean = false
-    private var closing: Boolean = false
-    private var favoritesModified: Boolean = false
-    private var isInFavorites: Boolean = false
-        set(value) {
-            field = value
-            bottomNavigation?.setSelectedItemId(
-                if (value) R.id.favorites else R.id.details,
-                false
-            )
-        }
+    private var wallpaper by androidx.compose.runtime.mutableStateOf<Wallpaper?>(null)
+    private var favoritesModified = false
+    private var isInFavorites = false
     private var collectionName: String? = null
-    private var isForFavs: Boolean = false
-
-    private val detailsFragment: DetailsFragment by lazy {
-        DetailsFragment.create(shouldShowPaletteDetails = shouldShowWallpapersPalette())
-    }
-
+    private var isForFavs = false
+    private val detailsFragment: DetailsFragment by lazy { DetailsFragment.create(shouldShowPaletteDetails = shouldShowWallpapersPalette()) }
     private var downloadBlockedDialog: AlertDialog? = null
     private var applierDialog: DialogFragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        window.requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS)
-        window.decorView.setBackgroundColor(0)
-        findViewById<View>(android.R.id.content).transitionName = TRANSITION_NAME
-        setEnterSharedElementCallback(MaterialContainerTransformSharedElementCallback())
-
-        window.sharedElementEnterTransition = MaterialContainerTransform().apply {
-            addTarget(android.R.id.content)
-            duration = ENTER_TRANSITION_DURATION
-        }
-
-        window.sharedElementReturnTransition = MaterialContainerTransform().apply {
-            addTarget(android.R.id.content)
-            duration = RETURN_TRANSITION_DURATION
-        }
-
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         statusBarLight = false
         navigationBarLight = false
-        setContentView(R.layout.activity_viewer)
-        bottomNavigation?.labelVisibilityMode = NavigationBarView.LABEL_VISIBILITY_LABELED
-
-        setSupportActionBar(toolbar)
-        supportActionBar?.let {
-            it.setHomeButtonEnabled(true)
-            it.setDisplayHomeAsUpEnabled(true)
-            it.setDisplayShowHomeEnabled(true)
+        window.statusBarColor = resolveColor(android.R.attr.colorBackground)
+        window.navigationBarColor = resolveColor(android.R.attr.colorBackground)
+        collectionName = intent?.getStringExtra(CollectionActivity.COLLECTION_NAME_KEY)
+        isForFavs = intent?.getBooleanExtra(IS_FOR_FAVS, false) ?: false
+        val requestedUrl = savedInstanceState?.getString(WALLPAPER_URL_KEY) ?: intent?.extras?.getParcelable<Wallpaper?>(WALLPAPER_EXTRA)?.url
+        wallpapersViewModel.observeFavorites(this) { favorites ->
+            isInFavorites = favorites.any { it.url == wallpaperDownloadUrl }
+            wallpaper?.let { current -> current.isInFavorites = isInFavorites; wallpaper = current }
         }
-        initWindow()
-        toolbar?.tint(color(R.color.white))
-
-        imageView?.setOnDoubleTapListener(object : GestureDetector.SimpleOnGestureListener() {
-            override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-                toggleSystemUI()
-                return super.onSingleTapConfirmed(e)
-            }
-        })
-
-        wallpapersViewModel.observeFavorites(this) {
-            this.isInFavorites = it.any { wall -> wall.url == wallpaperDownloadUrl }
-        }
-
-        // WALLPAPER SPECIFIC RELATED SETUP ↓
-        collectionName = intent?.extras?.getString(CollectionActivity.COLLECTION_NAME_KEY)
-        isForFavs = intent?.extras?.getBoolean(IS_FOR_FAVS, false) ?: false
-
-        val lastWallpaper = savedInstanceState?.getString(WALLPAPER_URL_KEY)
-        val wallpaperFromIntent = intent?.extras?.getParcelable<Wallpaper?>(WALLPAPER_EXTRA)?.url
-
-        lifecycleScope.launch {
-            configureUIForWallpaper(
-                wallpapersViewModel.findWallpaper(
-                    lastWallpaper ?: wallpaperFromIntent
-                )
-            )
-        }
+        lifecycleScope.launch { configureWallpaper(wallpapersViewModel.findWallpaper(requestedUrl)) }
     }
 
-    private fun configureUIForWallpaper(wallpaper: Wallpaper?) {
-        if (wallpaper == null) {
-            finish()
-            return
-        }
-
-        bottomNavigation?.setItemVisible(
-            R.id.download,
-            !(wallpaper.downloadable == false || !shouldShowDownloadOption())
-        )
-
-        findViewById<View?>(R.id.toolbar_title)?.let {
-            (it as? TextView)?.text = wallpaper.name
-        }
-        findViewById<View?>(R.id.toolbar_subtitle)?.let {
-            (it as? TextView)?.text = wallpaper.author
-            it.visibleIf(wallpaper.author.hasContent())
-        }
-
-        initWallpaperFetcher(wallpaper)
-        detailsFragment.wallpaper = wallpaper
-        loadWallpaper(wallpaper)
-
-        isInFavorites = wallpaper.isInFavorites
+    private fun configureWallpaper(value: Wallpaper?) {
+        if (value == null) { finish(); return }
+        value.isInFavorites = isInFavorites || value.isInFavorites
+        wallpaper = value
+        isInFavorites = value.isInFavorites
+        initWallpaperFetcher(value)
+        detailsFragment.wallpaper = value
         loadWallpapersData()
+        render()
+    }
 
-        bottomNavigation?.setOnNavigationItemSelectedListener {
-            handleNavigationItemSelected(it.itemId, wallpaper)
-        }
-
-        findViewById<AppCompatImageButton>(R.id.go_previous)?.setOnClickListener {
-            lifecycleScope.launch {
-                val previousWallpaper = if (isForFavs) {
-                    wallpapersViewModel.getPreviousFavoriteWallpaper(wallpaper.url)
-                } else {
-                    wallpapersViewModel.getPreviousWallpaper(wallpaper.url, collectionName)
-                }
-                configureUIForWallpaper(previousWallpaper)
+    private fun render() {
+        val current = wallpaper ?: return
+        setContent {
+            val themeKey = preferences.currentTheme.value
+            val darkTheme = when (themeKey) {
+                Preferences.ThemeKey.DARK.value -> true
+                Preferences.ThemeKey.LIGHT.value -> false
+                else -> resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
             }
-        }
-
-        findViewById<AppCompatImageButton>(R.id.go_next)?.setOnClickListener {
-            lifecycleScope.launch {
-                val nextWallpaper = if (isForFavs) {
-                    wallpapersViewModel.getNextFavoriteWallpaper(wallpaper.url)
-                } else {
-                    wallpapersViewModel.getNextWallpaper(wallpaper.url, collectionName)
-                }
-                configureUIForWallpaper(nextWallpaper)
-            }
-        }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putBoolean(CLOSING_KEY, closing)
-        outState.putBoolean(TRANSITIONED_KEY, transitioned)
-        outState.putBoolean(IS_IN_FAVORITES_KEY, isInFavorites)
-        outState.putBoolean(FAVORITES_MODIFIED, favoritesModified)
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        this.closing = savedInstanceState.getBoolean(CLOSING_KEY, false)
-        this.transitioned = savedInstanceState.getBoolean(TRANSITIONED_KEY, false)
-        this.isInFavorites = savedInstanceState.getBoolean(IS_IN_FAVORITES_KEY, false)
-        this.favoritesModified = savedInstanceState.getBoolean(FAVORITES_MODIFIED, false)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) supportFinishAfterTransition()
-        return super.onOptionsItemSelected(item)
-    }
-
-    override fun finish() {
-        imageView?.setZoom(1F)
-        setResult(
-            if (favoritesModified) FAVORITES_MODIFIED_RESULT
-            else FAVORITES_NOT_MODIFIED_RESULT,
-            Intent().apply {
-                putExtra(FAVORITES_MODIFIED, favoritesModified)
-            }
-        )
-        super.finish()
-    }
-
-    private fun dismissApplierDialog() {
-        try {
-            applierDialog?.dismiss()
-        } catch (_: Exception) {
-        }
-        applierDialog = null
-    }
-
-    private fun dismissDownloadBlockedDialog() {
-        try {
-            downloadBlockedDialog?.dismiss()
-        } catch (_: Exception) {
-        }
-        downloadBlockedDialog = null
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        dismissApplierDialog()
-        dismissDownloadBlockedDialog()
-    }
-
-    private fun generatePalette(drawable: Drawable? = null) {
-        findViewById<View?>(R.id.loading)?.gone()
-        if (!shouldShowWallpapersPalette()) {
-            setBackgroundColor()
-            return
-        }
-        (drawable ?: imageView?.drawable)?.asBitmap()?.let { bitmap ->
-            Palette.from(bitmap)
-                .maximumColorCount(MAX_PALETTE_COLORS * 2)
-                .generate {
-                    setBackgroundColor(it?.bestSwatch?.rgb ?: 0)
-                    detailsFragment.palette = it
-                }
-        } ?: run {
-            setBackgroundColor()
-        }
-    }
-
-    private fun setBackgroundColor(@ColorInt color: Int? = null) {
-        findViewById<View?>(R.id.activity_root_view)?.setBackgroundColor(
-            color ?: resolveColor(android.R.attr.colorBackground)
-        )
-    }
-
-    private fun loadWallpaper(wallpaper: Wallpaper) {
-        findViewById<View?>(R.id.loading)?.visible()
-        var placeholder: Drawable? = null
-        val wallpaperFromIntent = intent?.extras?.getParcelable<Wallpaper?>(WALLPAPER_EXTRA)?.url
-        try {
-            if (wallpaperFromIntent == wallpaper.url) {
-                openFileInput(SHARED_IMAGE_NAME)?.use {
-                    placeholder = BitmapDrawable(resources, it)
-                }
-            } else {
-                imageView?.dispose()
-                placeholder = Color.TRANSPARENT.toDrawable()
-                firstImageLoad = true
-                setBackgroundColor()
-            }
-        } catch (_: Exception) {
-        }
-        imageView?.loadWallpaperPic(
-            wallpaper.url,
-            wallpaper.thumbnail,
-            placeholder,
-            forceLoadFullRes = true,
-            cropAsCircle = false,
-            saturate = false
-        ) { w ->
-            if (firstImageLoad) {
-                firstImageLoad = false
-                imageView?.resetZoomAnimated()
-            }
-            generatePalette(w)
-        }
-    }
-
-    private fun initWindow() {
-        window.decorView.systemUiVisibility =
-            SYSTEM_UI_FLAG_LAYOUT_STABLE or SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-                    SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-
-        val params: WindowManager.LayoutParams = window.attributes
-        params.flags = params.flags and WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS.inv()
-        window.attributes = params
-
-        appbar?.let { appbar ->
-            ViewCompat.setOnApplyWindowInsetsListener(appbar) { _, insets ->
-                appbar.setPaddingTop(insets.systemWindowInsetTop)
-                appbar.setPaddingLeft(
-                    if (boolean(R.bool.is_landscape)) insets.systemWindowInsetLeft
-                    else 0
+            SuperiorwallsTheme(darkTheme = darkTheme, dynamicColor = preferences.useMaterialYou, amoled = preferences.usesAmoledTheme) {
+                ViewerScreen(
+                    wallpaper = current,
+                    canModifyFavorites = canModifyFavorites(),
+                    showDownload = current.downloadable != false && shouldShowDownloadOption(),
+                    onBack = { supportFinishAfterTransition() },
+                    onPrevious = { navigatePrevious(current) },
+                    onNext = { navigateNext(current) },
+                    onDetails = { detailsFragment.show(supportFragmentManager, DETAILS_TAG) },
+                    onDownload = ::checkForDownload,
+                    onApply = ::showApplyDialog,
+                    onFavorite = { toggleFavorite(current) },
+                    onToggleSystemUi = { toggleSystemUI() },
+                    onImageLoaded = ::generatePalette,
                 )
-                appbar.setPaddingRight(
-                    if (boolean(R.bool.is_landscape)) insets.systemWindowInsetRight
-                    else 0
-                )
-                insets
             }
         }
-
-        bottomNavigation?.let { bottomNavigation ->
-            ViewCompat.setOnApplyWindowInsetsListener(bottomNavigation) { _, insets ->
-                bottomNavigation.setPaddingBottom(insets.systemWindowInsetBottom)
-                insets
-            }
-        }
-
-        window.statusBarColor = color(R.color.viewer_bars_colors)
-        window.navigationBarColor = color(R.color.viewer_bars_colors)
     }
 
-    open fun handleNavigationItemSelected(itemId: Int, wallpaper: Wallpaper?): Boolean {
-        wallpaper ?: return false
-        when (itemId) {
-            R.id.details -> detailsFragment.show(this, "DETAILS_FRAG")
-            R.id.download -> checkForDownload()
-            R.id.apply -> applyWallpaper(wallpaper)
-            R.id.favorites -> {
-                if (canModifyFavorites()) {
-                    this.favoritesModified = true
-                    if (isInFavorites) removeFromFavorites(wallpaper)
-                    else addToFavorites(wallpaper)
-                } else onFavoritesLocked()
+    private fun navigatePrevious(current: Wallpaper) = lifecycleScope.launch {
+        configureWallpaper(if (isForFavs) wallpapersViewModel.getPreviousFavoriteWallpaper(current.url) else wallpapersViewModel.getPreviousWallpaper(current.url, collectionName))
+    }
+
+    private fun navigateNext(current: Wallpaper) = lifecycleScope.launch {
+        configureWallpaper(if (isForFavs) wallpapersViewModel.getNextFavoriteWallpaper(current.url) else wallpapersViewModel.getNextWallpaper(current.url, collectionName))
+    }
+
+    private fun toggleFavorite(current: Wallpaper) {
+        if (!canModifyFavorites()) { onFavoritesLocked(); return }
+        val newValue = !isInFavorites
+        favoritesModified = true
+        if (newValue) addToFavorites(current) else removeFromFavorites(current)
+        isInFavorites = newValue
+        current.isInFavorites = newValue
+        wallpaper = current
+    }
+
+    private fun generatePalette(drawable: Drawable?) {
+        if (!shouldShowWallpapersPalette()) return
+        drawable?.asBitmap()?.let { bitmap ->
+            Palette.from(bitmap).maximumColorCount(MAX_PALETTE_COLORS * 2).generate { palette ->
+                detailsFragment.palette = palette
+                palette?.bestSwatch?.rgb?.let { window.statusBarColor = it; window.navigationBarColor = it }
             }
         }
-        return false
     }
 
     private fun hasValidNetworkAvailable(): Boolean {
-        val downloadUsingWiFiOnly = preferences.shouldDownloadOnWiFiOnly
-        val isConnected = isNetworkAvailable()
-        val usingMobileData = (downloadUsingWiFiOnly && !isWifiConnected) && isConnected
-        val shouldShowNetworkDialog = !isConnected || usingMobileData
-        if (shouldShowNetworkDialog) {
+        val wifiOnly = preferences.shouldDownloadOnWiFiOnly
+        val connected = isNetworkAvailable()
+        val mobileData = wifiOnly && !isWifiConnected && connected
+        if (!connected || mobileData) {
             dismissDownloadBlockedDialog()
             downloadBlockedDialog = mdDialog {
                 title(R.string.error)
-                message(
-                    if (usingMobileData) R.string.data_error_network_wifi_only
-                    else R.string.data_error_network
-                )
+                message(if (mobileData) R.string.data_error_network_wifi_only else R.string.data_error_network)
                 positiveButton(android.R.string.ok) { it.dismiss() }
             }
             downloadBlockedDialog?.show()
@@ -399,50 +151,70 @@ open class ViewerActivity : BaseWallpaperApplierActivity<Preferences>() {
 
     private fun checkForDownload() {
         if (!shouldShowDownloadOption()) return
-        val actuallyComplies =
-            boolean(R.bool.allow_immediate_downloads) ||
-                System.currentTimeMillis() - firstInstallTime >= MIN_TIME
-        if (actuallyComplies) {
-            if (!hasValidNetworkAvailable()) return
-            requestStoragePermission()
-        } else {
-            val elapsedTime = System.currentTimeMillis() - firstInstallTime
-            val timeLeft = MIN_TIME - elapsedTime
-            val timeLeftText = timeLeft.toReadableTime()
-
-            dismissDownloadBlockedDialog()
-            downloadBlockedDialog = mdDialog {
-                title(R.string.prevent_download_title)
-                message(string(R.string.prevent_download_content, timeLeftText))
-                positiveButton(android.R.string.ok) { it.dismiss() }
-            }
-            downloadBlockedDialog?.show()
+        val allowed = boolean(R.bool.allow_immediate_downloads) || System.currentTimeMillis() - firstInstallTime >= MIN_TIME
+        if (allowed) { if (hasValidNetworkAvailable()) requestStoragePermission(); return }
+        val timeLeft = (MIN_TIME - (System.currentTimeMillis() - firstInstallTime)).toReadableTime()
+        dismissDownloadBlockedDialog()
+        downloadBlockedDialog = mdDialog {
+            title(R.string.prevent_download_title)
+            message(string(R.string.prevent_download_content, timeLeft))
+            positiveButton(android.R.string.ok) { it.dismiss() }
         }
+        downloadBlockedDialog?.show()
+    }
+
+    private fun showApplyDialog() {
+        dismissApplierDialog()
+        applierDialog = SetAsOptionsDialog().also { it.show(supportFragmentManager, SetAsOptionsDialog.TAG) }
     }
 
     override fun internalOnPermissionsGranted(permission: String) {
         super.internalOnPermissionsGranted(permission)
-        if (permission == Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            startDownload()
+        if (permission == Manifest.permission.WRITE_EXTERNAL_STORAGE) startDownload()
     }
 
-    private fun applyWallpaper(wallpaper: Wallpaper?) {
-        wallpaper ?: return
-        dismissApplierDialog()
-        applierDialog = SetAsOptionsDialog()
-        applierDialog?.show(supportFragmentManager, SetAsOptionsDialog.TAG)
+    open fun handleNavigationItemSelected(itemId: Int, wallpaper: Wallpaper?): Boolean {
+        wallpaper ?: return false
+        when (itemId) {
+            R.id.details -> detailsFragment.show(supportFragmentManager, DETAILS_TAG)
+            R.id.download -> checkForDownload()
+            R.id.apply -> showApplyDialog()
+            R.id.favorites -> toggleFavorite(wallpaper)
+        }
+        return false
     }
 
-    private fun shouldShowWallpapersPalette(): Boolean =
-        boolean(R.bool.show_wallpaper_palette_details, true)
+    private fun dismissApplierDialog() { try { applierDialog?.dismiss() } catch (_: Exception) {}; applierDialog = null }
+    private fun dismissDownloadBlockedDialog() { try { downloadBlockedDialog?.dismiss() } catch (_: Exception) {}; downloadBlockedDialog = null }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString(WALLPAPER_URL_KEY, wallpaper?.url ?: wallpaperDownloadUrl)
+        outState.putBoolean(FAVORITES_MODIFIED, favoritesModified)
+        outState.putBoolean(IS_IN_FAVORITES_KEY, isInFavorites)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        favoritesModified = savedInstanceState.getBoolean(FAVORITES_MODIFIED, false)
+        isInFavorites = savedInstanceState.getBoolean(IS_IN_FAVORITES_KEY, false)
+    }
+
+    override fun finish() {
+        setResult(if (favoritesModified) FAVORITES_MODIFIED_RESULT else FAVORITES_NOT_MODIFIED_RESULT, Intent().putExtra(FAVORITES_MODIFIED, favoritesModified))
+        super.finish()
+    }
+
+    override fun onDestroy() {
+        dismissApplierDialog(); dismissDownloadBlockedDialog(); super.onDestroy()
+    }
+
+    private fun shouldShowWallpapersPalette(): Boolean = boolean(R.bool.show_wallpaper_palette_details, true)
     open fun shouldShowDownloadOption() = true
     override fun shouldLoadCollections(): Boolean = false
     override val shouldChangeStatusBarLightStatus: Boolean = false
     override val shouldChangeNavigationBarLightStatus: Boolean = false
-
-    override fun canToggleSystemUIVisibility(): Boolean =
-        intent?.getBooleanExtra(CAN_TOGGLE_SYSTEMUI_VISIBILITY_KEY, true) ?: true
+    override fun canToggleSystemUIVisibility(): Boolean = intent?.getBooleanExtra(CAN_TOGGLE_SYSTEMUI_VISIBILITY_KEY, true) ?: true
 
     companion object {
         internal const val MIN_TIME: Long = 3L * 60L * 60000L
@@ -453,10 +225,7 @@ open class ViewerActivity : BaseWallpaperApplierActivity<Preferences>() {
         internal const val SHARED_IMAGE_NAME = "thumb.jpg"
         internal const val TRANSITION_NAME = "wallpaper_transition_container"
         internal const val IS_FOR_FAVS = "viewer_is_for_favs"
-        private const val ENTER_TRANSITION_DURATION = 300L
-        private const val RETURN_TRANSITION_DURATION = 250L
-        private const val CLOSING_KEY = "closing"
-        private const val TRANSITIONED_KEY = "transitioned"
+        private const val DETAILS_TAG = "DETAILS_FRAG"
         private const val IS_IN_FAVORITES_KEY = "is_in_favorites"
     }
 }
