@@ -8,7 +8,7 @@ object Versions {
 
     // App
     const val minSdk = 26
-    const val targetSdk = 35
+    const val targetSdk = 36
     const val buildTools = "36.0.0"
 
     // Coroutines
@@ -24,6 +24,11 @@ object Versions {
     const val materialComponents = "1.12.0"
     const val activityKtx = "1.10.1"
     const val fragmentKtx = "1.8.9"
+
+    // Compose / Material 3
+    const val composeBom = "2026.07.00"
+    const val activityCompose = "1.13.0"
+    const val lifecycleCompose = "2.10.0"
 
     // ViewModel and LiveData
     const val lifecycle = "2.9.2"

@@ -6,6 +6,8 @@ object Plugins {
 
     // Kotlin
     const val kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
+    const val compose =
+        "org.jetbrains.kotlin.plugin.compose:org.jetbrains.kotlin.plugin.compose.gradle.plugin:${Versions.kotlin}"
 
     // KSP
     const val ksp =

@@ -25,6 +25,16 @@ object Libs {
     private const val activityKtx = "androidx.activity:activity-ktx:${Versions.activityKtx}"
     private const val fragmentKtx = "androidx.fragment:fragment-ktx:${Versions.fragmentKtx}"
 
+    // Compose UI
+    private const val composeBom = "androidx.compose:compose-bom:${Versions.composeBom}"
+    private const val composeUi = "androidx.compose.ui:ui"
+    private const val composeUiToolingPreview = "androidx.compose.ui:ui-tooling-preview"
+    private const val composeMaterial3 = "androidx.compose.material3:material3"
+    private const val composeRuntimeLiveData = "androidx.compose.runtime:runtime-livedata"
+    private const val composeActivity = "androidx.activity:activity-compose:${Versions.activityCompose}"
+    private const val composeLifecycle = "androidx.lifecycle:lifecycle-viewmodel-compose:${Versions.lifecycleCompose}"
+    private const val coilCompose = "io.coil-kt:coil-compose:${Versions.coil}"
+
     // ViewModel and LiveData
     private const val lifecycle = "androidx.lifecycle:lifecycle-extensions:${Versions.lifecycleExt}"
     private const val livedataKtx =
@@ -73,7 +83,6 @@ object Libs {
     // Muzei API
     const val muzei = "com.google.android.apps.muzei:muzei-api:${Versions.muzei}"
 
-    // Dependencies (must use api for they to work)
     val dependencies = arrayOf(
         kotlin,
         coroutines,
@@ -88,6 +97,14 @@ object Libs {
         materialComponents,
         activityKtx,
         fragmentKtx,
+        composeBom,
+        composeUi,
+        composeUiToolingPreview,
+        composeMaterial3,
+        composeRuntimeLiveData,
+        composeActivity,
+        composeLifecycle,
+        coilCompose,
         lifecycle,
         livedataKtx,
         viewmodelKtx,
@@ -107,6 +124,5 @@ object Libs {
         muzei
     )
 
-    // KSP dependencies
     val kspDependencies = arrayOf(roomCompiler)
 }
