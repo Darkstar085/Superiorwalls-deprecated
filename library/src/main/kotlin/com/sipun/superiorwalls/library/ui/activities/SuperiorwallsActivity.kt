@@ -22,10 +22,10 @@ import com.sipun.superiorwalls.library.extensions.resources.hasContent
 import com.sipun.superiorwalls.library.ui.fragments.CollectionsFragment
 import com.sipun.superiorwalls.library.ui.fragments.WallpapersFragment
 import com.sipun.superiorwalls.library.ui.fragments.base.BaseWallpaperFragment
-import com.sipun.superiorwalls.library.ui.activities.base.BaseChangelogDialogActivity
+import com.sipun.superiorwalls.library.ui.activities.base.BaseSearchableActivity
 
 @Suppress("LeakingThis", "MemberVisibilityCanBePrivate")
-abstract class SuperiorwallsActivity : BaseChangelogDialogActivity<Preferences>() {
+abstract class SuperiorwallsActivity : BaseSearchableActivity<Preferences>() {
 
     override val preferences: Preferences by lazy { Preferences(this) }
 
@@ -153,7 +153,6 @@ abstract class SuperiorwallsActivity : BaseChangelogDialogActivity<Preferences>(
     fun changeFragment(itemId: Int, force: Boolean = false, animate: Boolean = true): Boolean {
         if (currentItemId != itemId || force) {
             val next = getNextFragment(itemId)
-            // Pair ( Pair ( fragmentTag, fragment ) , shouldShowItemAsSelected )
             val nextFragmentTag = next?.first?.first.orEmpty()
             if (!nextFragmentTag.hasContent()) return false
             val nextFragment = next?.first?.second
