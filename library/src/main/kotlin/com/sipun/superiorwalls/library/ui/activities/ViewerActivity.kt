@@ -6,7 +6,9 @@ import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -24,10 +26,6 @@ import com.sipun.superiorwalls.library.extensions.context.navigationBarLight
 import com.sipun.superiorwalls.library.extensions.context.resolveColor
 import com.sipun.superiorwalls.library.extensions.context.statusBarLight
 import com.sipun.superiorwalls.library.extensions.context.string
-import com.sipun.superiorwalls.library.extensions.fragments.mdDialog
-import com.sipun.superiorwalls.library.extensions.fragments.message
-import com.sipun.superiorwalls.library.extensions.fragments.positiveButton
-import com.sipun.superiorwalls.library.extensions.fragments.title
 import com.sipun.superiorwalls.library.extensions.resources.asBitmap
 import com.sipun.superiorwalls.library.extensions.resources.toReadableTime
 import com.sipun.superiorwalls.library.extensions.utils.MAX_PALETTE_COLORS
@@ -45,11 +43,11 @@ open class ViewerActivity : BaseWallpaperApplierActivity<Preferences>() {
     private var showDetails by mutableStateOf(false)
     private var showApply by mutableStateOf(false)
     private var selectedApplyOption by mutableStateOf<Int?>(null)
+    private var downloadBlockedMessage by mutableStateOf<String?>(null)
     private var favoritesModified = false
     private var isInFavorites = false
     private var collectionName: String? = null
     private var isForFavs = false
-    private var downloadBlockedDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,16 +58,23 @@ open class ViewerActivity : BaseWallpaperApplierActivity<Preferences>() {
         window.navigationBarColor = resolveColor(android.R.attr.colorBackground)
         collectionName = intent?.getStringExtra(CollectionActivity.COLLECTION_NAME_KEY)
         isForFavs = intent?.getBooleanExtra(IS_FOR_FAVS, false) ?: false
-        val requestedUrl = savedInstanceState?.getString(WALLPAPER_URL_KEY) ?: intent?.extras?.getParcelable<Wallpaper?>(WALLPAPER_EXTRA)?.url
+        val requestedUrl = savedInstanceState?.getString(WALLPAPER_URL_KEY)
+            ?: intent?.extras?.getParcelable<Wallpaper?>(WALLPAPER_EXTRA)?.url
         wallpapersViewModel.observeFavorites(this) { favorites ->
             isInFavorites = favorites.any { it.url == wallpaperDownloadUrl }
-            wallpaper?.let { current -> current.isInFavorites = isInFavorites; wallpaper = current }
+            wallpaper?.let { current ->
+                current.isInFavorites = isInFavorites
+                wallpaper = current
+            }
         }
         lifecycleScope.launch { configureWallpaper(wallpapersViewModel.findWallpaper(requestedUrl)) }
     }
 
     private fun configureWallpaper(value: Wallpaper?) {
-        if (value == null) { finish(); return }
+        if (value == null) {
+            finish()
+            return
+        }
         value.isInFavorites = isInFavorites || value.isInFavorites
         wallpaper = value
         isInFavorites = value.isInFavorites
@@ -88,7 +93,11 @@ open class ViewerActivity : BaseWallpaperApplierActivity<Preferences>() {
                 Preferences.ThemeKey.LIGHT.value -> false
                 else -> resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
             }
-            SuperiorwallsTheme(darkTheme = darkTheme, dynamicColor = preferences.useMaterialYou, amoled = preferences.usesAmoledTheme) {
+            SuperiorwallsTheme(
+                darkTheme = darkTheme,
+                dynamicColor = preferences.useMaterialYou,
+                amoled = preferences.usesAmoledTheme,
+            ) {
                 ViewerScreen(
                     wallpaper = current,
                     canModifyFavorites = canModifyFavorites(),
@@ -125,20 +134,41 @@ open class ViewerActivity : BaseWallpaperApplierActivity<Preferences>() {
                         onDismiss = { showApply = false },
                     )
                 }
+                downloadBlockedMessage?.let { message ->
+                    AlertDialog(
+                        onDismissRequest = { downloadBlockedMessage = null },
+                        title = { Text(getString(R.string.error)) },
+                        text = { Text(message) },
+                        confirmButton = {
+                            TextButton(onClick = { downloadBlockedMessage = null }) {
+                                Text(getString(android.R.string.ok))
+                            }
+                        },
+                    )
+                }
             }
         }
     }
 
     private fun navigatePrevious(current: Wallpaper) = lifecycleScope.launch {
-        configureWallpaper(if (isForFavs) wallpapersViewModel.getPreviousFavoriteWallpaper(current.url) else wallpapersViewModel.getPreviousWallpaper(current.url, collectionName))
+        configureWallpaper(
+            if (isForFavs) wallpapersViewModel.getPreviousFavoriteWallpaper(current.url)
+            else wallpapersViewModel.getPreviousWallpaper(current.url, collectionName)
+        )
     }
 
     private fun navigateNext(current: Wallpaper) = lifecycleScope.launch {
-        configureWallpaper(if (isForFavs) wallpapersViewModel.getNextFavoriteWallpaper(current.url) else wallpapersViewModel.getNextWallpaper(current.url, collectionName))
+        configureWallpaper(
+            if (isForFavs) wallpapersViewModel.getNextFavoriteWallpaper(current.url)
+            else wallpapersViewModel.getNextWallpaper(current.url, collectionName)
+        )
     }
 
     private fun toggleFavorite(current: Wallpaper) {
-        if (!canModifyFavorites()) { onFavoritesLocked(); return }
+        if (!canModifyFavorites()) {
+            onFavoritesLocked()
+            return
+        }
         val newValue = !isInFavorites
         favoritesModified = true
         if (newValue) addToFavorites(current) else removeFromFavorites(current)
@@ -152,7 +182,10 @@ open class ViewerActivity : BaseWallpaperApplierActivity<Preferences>() {
         drawable?.asBitmap()?.let { bitmap ->
             Palette.from(bitmap).maximumColorCount(MAX_PALETTE_COLORS * 2).generate { generated ->
                 palette = generated
-                generated?.bestSwatch?.rgb?.let { window.statusBarColor = it; window.navigationBarColor = it }
+                generated?.bestSwatch?.rgb?.let {
+                    window.statusBarColor = it
+                    window.navigationBarColor = it
+                }
             }
         }
     }
@@ -162,13 +195,9 @@ open class ViewerActivity : BaseWallpaperApplierActivity<Preferences>() {
         val connected = isNetworkAvailable()
         val mobileData = wifiOnly && !isWifiConnected && connected
         if (!connected || mobileData) {
-            dismissDownloadBlockedDialog()
-            downloadBlockedDialog = mdDialog {
-                title(R.string.error)
-                message(if (mobileData) R.string.data_error_network_wifi_only else R.string.data_error_network)
-                positiveButton(android.R.string.ok) { it.dismiss() }
-            }
-            downloadBlockedDialog?.show()
+            downloadBlockedMessage = getString(
+                if (mobileData) R.string.data_error_network_wifi_only else R.string.data_error_network,
+            )
             return false
         }
         return true
@@ -177,15 +206,12 @@ open class ViewerActivity : BaseWallpaperApplierActivity<Preferences>() {
     private fun checkForDownload() {
         if (!shouldShowDownloadOption()) return
         val allowed = boolean(R.bool.allow_immediate_downloads) || System.currentTimeMillis() - firstInstallTime >= MIN_TIME
-        if (allowed) { if (hasValidNetworkAvailable()) requestStoragePermission(); return }
-        val timeLeft = (MIN_TIME - (System.currentTimeMillis() - firstInstallTime)).toReadableTime()
-        dismissDownloadBlockedDialog()
-        downloadBlockedDialog = mdDialog {
-            title(R.string.prevent_download_title)
-            message(string(R.string.prevent_download_content, timeLeft))
-            positiveButton(android.R.string.ok) { it.dismiss() }
+        if (allowed) {
+            if (hasValidNetworkAvailable()) requestStoragePermission()
+            return
         }
-        downloadBlockedDialog?.show()
+        val timeLeft = (MIN_TIME - (System.currentTimeMillis() - firstInstallTime)).toReadableTime()
+        downloadBlockedMessage = string(R.string.prevent_download_content, timeLeft)
     }
 
     override fun internalOnPermissionsGranted(permission: String) {
@@ -204,8 +230,6 @@ open class ViewerActivity : BaseWallpaperApplierActivity<Preferences>() {
         return false
     }
 
-    private fun dismissDownloadBlockedDialog() { try { downloadBlockedDialog?.dismiss() } catch (_: Exception) {}; downloadBlockedDialog = null }
-
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString(WALLPAPER_URL_KEY, wallpaper?.url ?: wallpaperDownloadUrl)
         outState.putBoolean(FAVORITES_MODIFIED, favoritesModified)
@@ -220,11 +244,12 @@ open class ViewerActivity : BaseWallpaperApplierActivity<Preferences>() {
     }
 
     override fun finish() {
-        setResult(if (favoritesModified) FAVORITES_MODIFIED_RESULT else FAVORITES_NOT_MODIFIED_RESULT, Intent().putExtra(FAVORITES_MODIFIED, favoritesModified))
+        setResult(
+            if (favoritesModified) FAVORITES_MODIFIED_RESULT else FAVORITES_NOT_MODIFIED_RESULT,
+            Intent().putExtra(FAVORITES_MODIFIED, favoritesModified),
+        )
         super.finish()
     }
-
-    override fun onDestroy() { dismissDownloadBlockedDialog(); super.onDestroy() }
 
     private fun shouldShowWallpapersPalette(): Boolean = boolean(R.bool.show_wallpaper_palette_details, true)
     open fun shouldShowDownloadOption() = true
