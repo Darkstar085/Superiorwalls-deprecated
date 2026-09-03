@@ -26,7 +26,6 @@ object Libs {
     private const val fragmentKtx = "androidx.fragment:fragment-ktx:${Versions.fragmentKtx}"
 
     // ViewModel and LiveData
-    private const val lifecycle = "androidx.lifecycle:lifecycle-extensions:${Versions.lifecycleExt}"
     private const val livedataKtx =
         "androidx.lifecycle:lifecycle-livedata-ktx:${Versions.lifecycle}"
     private const val viewmodelKtx =
@@ -67,9 +66,6 @@ object Libs {
     // Permissions
     private const val permissions = "com.github.fondesa:kpermissions:${Versions.permissions}"
 
-    // MultiDex
-    private const val multidex = "androidx.multidex:multidex:${Versions.multidex}"
-
     // Muzei API
     const val muzei = "com.google.android.apps.muzei:muzei-api:${Versions.muzei}"
 
@@ -88,7 +84,6 @@ object Libs {
         materialComponents,
         activityKtx,
         fragmentKtx,
-        lifecycle,
         livedataKtx,
         viewmodelKtx,
         room,
@@ -103,7 +98,6 @@ object Libs {
         sectionedRecyclerView,
         fastScrollRecyclerView,
         permissions,
-        multidex,
         muzei
     )
 
