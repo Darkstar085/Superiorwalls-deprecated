@@ -2,6 +2,7 @@ package com.sipun.superiorwalls.library.ui.compose
 
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -77,7 +78,10 @@ fun SettingsScreen(
         localesViewModel.loadAppLocales()
         repeat(20) {
             kotlinx.coroutines.delay(50)
-            if (localesViewModel.locales.isNotEmpty()) return@repeat
+            if (localesViewModel.locales.isNotEmpty()) {
+                locales = localesViewModel.locales
+                return@LaunchedEffect
+            }
         }
         locales = localesViewModel.locales
     }
@@ -131,8 +135,8 @@ fun SettingsScreen(
             item { SettingsAction(Icons.Rounded.ColorLens, dashboardName, dashboardVersion) }
             item { SettingsAction(Icons.Rounded.ColorLens, "Dashboard developer", "Jahir Fiquitiva") { context.openLink("https://github.com/jahirfiquitiva/") } }
             item { SettingsAction(Icons.Rounded.ColorLens, "App developer", "Sipun Ku Mahanta") { context.openLink("https://github.com/Darkstar085/") } }
-            item { SettingsAction(Icons.Rounded.ColorLens, "Privacy policy", "") { context.openLink(context.getString(R.string.privacy_policy_link)) } }
-            item { SettingsAction(Icons.Rounded.ColorLens, "Terms & conditions", "") { context.openLink(context.getString(R.string.terms_conditions_link)) } }
+            item { SettingsAction(Icons.Rounded.ColorLens, "Privacy policy", "") { context.getString(R.string.privacy_policy_link).takeIf(String::isNotBlank)?.let(context::openLink) } }
+            item { SettingsAction(Icons.Rounded.ColorLens, "Terms & conditions", "") { context.getString(R.string.terms_conditions_link).takeIf(String::isNotBlank)?.let(context::openLink) } }
             item { SettingsAction(Icons.Rounded.ColorLens, context.getAppName(), "${context.currentVersionName} (${context.currentVersionCode})") }
         }
     }
@@ -186,9 +190,10 @@ private fun SettingsAction(icon: ImageVector, title: String, summary: String = "
         headlineContent = { Text(title) },
         supportingContent = { if (summary.isNotBlank()) Text(summary, maxLines = 2) },
         leadingContent = { Icon(icon, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
-        modifier = Modifier.fillMaxWidth().then(if (onClick != null) Modifier.padding(vertical = 2.dp) else Modifier),
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
     )
-    if (onClick != null) TextButton(onClick = onClick, modifier = Modifier.fillMaxWidth()) { Text("Open") }
     HorizontalDivider(Modifier.padding(horizontal = 20.dp))
 }
 
@@ -198,7 +203,7 @@ private fun ThemeDialog(selected: Int, onSelect: (Int) -> Unit) {
     AlertDialog(
         onDismissRequest = { onSelect(selected) },
         title = { Text("App theme") },
-        text = { Column { themes.forEach { theme -> Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) { RadioButton(selected == theme.value, onClick = { onSelect(theme.value) }); Text(stringResource(theme.stringResId)) } } } },
+        text = { Column { themes.forEach { theme -> Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().clickable { onSelect(theme.value) }) { RadioButton(selected == theme.value, onClick = { onSelect(theme.value) }); Text(stringResource(theme.stringResId)) } } } },
         confirmButton = {},
     )
 }
@@ -208,7 +213,7 @@ private fun LanguageDialog(locales: List<ReadableLocale>, selected: String?, onS
     AlertDialog(
         onDismissRequest = { onSelect(selected ?: Locale.getDefault().toLanguageTag()) },
         title = { Text("App language") },
-        text = { Column { locales.forEach { locale -> Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) { RadioButton(selected == locale.tag, onClick = { onSelect(locale.tag) }); Text(locale.name) } } } },
+        text = { Column { locales.forEach { locale -> Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().clickable { onSelect(locale.tag) }) { RadioButton(selected == locale.tag, onClick = { onSelect(locale.tag) }); Text(locale.name) } } } },
         confirmButton = { TextButton(onClick = { onSelect(selected ?: Locale.getDefault().toLanguageTag()) }) { Text("Done") } },
     )
 }

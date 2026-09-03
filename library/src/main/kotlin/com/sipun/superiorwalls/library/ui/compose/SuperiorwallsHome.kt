@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,11 +44,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -74,9 +75,9 @@ fun SuperiorwallsHome(
     onCollectionClick: (Collection) -> Unit,
     onSettingsClick: () -> Unit,
 ) {
-    var destination by remember { mutableIntStateOf(HomeDestination.WALLPAPERS.ordinal) }
-    var query by remember { mutableStateOf("") }
-    var searchOpen by remember { mutableStateOf(false) }
+    var destination by rememberSaveable { mutableIntStateOf(HomeDestination.WALLPAPERS.ordinal) }
+    var query by rememberSaveable { mutableStateOf("") }
+    var searchOpen by rememberSaveable { mutableStateOf(false) }
     val current = HomeDestination.entries[destination]
     val source = when (current) {
         HomeDestination.WALLPAPERS -> wallpapers
@@ -86,7 +87,9 @@ fun SuperiorwallsHome(
     val filtered = if (query.isBlank()) source else source.filter { it.name.contains(query, true) || it.author.orEmpty().contains(query, true) || it.collections.orEmpty().contains(query, true) }
 
     SuperiorwallsTheme(darkTheme = useDarkTheme, dynamicColor = useDynamicColor, amoled = useAmoled) {
+        val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
         Scaffold(
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             topBar = {
                 if (searchOpen) {
                     SearchBar(
@@ -98,7 +101,7 @@ fun SuperiorwallsHome(
                     LargeTopAppBar(
                         title = { Column { Text("Superiorwalls"); Text(when (current) { HomeDestination.WALLPAPERS -> "Discover something beautiful"; HomeDestination.COLLECTIONS -> "Curated collections"; HomeDestination.FAVORITES -> "Your saved wallpapers" }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) } },
                         actions = { IconButton(onClick = { searchOpen = true }) { Icon(Icons.Rounded.Search, "Search") }; IconButton(onClick = onSettingsClick) { Icon(Icons.Rounded.Settings, "Settings") } },
-                        scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(),
+                        scrollBehavior = scrollBehavior,
                     )
                 }
             },
