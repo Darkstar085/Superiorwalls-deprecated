@@ -10,10 +10,10 @@ import com.sipun.superiorwalls.library.extensions.context.string
 import com.sipun.superiorwalls.library.extensions.resources.hasContent
 import com.sipun.superiorwalls.library.extensions.utils.parcelable
 import com.sipun.superiorwalls.library.extensions.views.gone
-import com.sipun.superiorwalls.library.ui.activities.base.BaseChangelogDialogActivity
+import com.sipun.superiorwalls.library.ui.activities.base.BaseSearchableActivity
 import com.sipun.superiorwalls.library.ui.fragments.WallpapersFragment
 
-open class CollectionActivity : BaseChangelogDialogActivity<Preferences>() {
+open class CollectionActivity : BaseSearchableActivity<Preferences>() {
 
     override val preferences: Preferences by lazy { Preferences(this) }
 
