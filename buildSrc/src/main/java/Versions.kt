@@ -2,13 +2,13 @@
 
 object Versions {
     // Plugins
-    const val gradle = "8.12.0"
-    const val kotlin = "2.2.0"
-    const val ksp = "$kotlin-2.0.2"
+    const val gradle = "9.4.0"
+    const val kotlin = "2.4.10"
+    const val ksp = "2.3.11"
 
     // App
     const val minSdk = 26
-    const val targetSdk = 35
+    const val targetSdk = 37
     const val buildTools = "36.0.0"
 
     // Coroutines
@@ -21,19 +21,18 @@ object Versions {
     const val swipeRefreshLayout = "1.1.0"
     const val palette = "1.0.0"
     const val preference = "1.2.1"
-    const val materialComponents = "1.12.0"
-    const val activityKtx = "1.10.1"
+    const val materialComponents = "1.13.0"
+    const val activityKtx = "1.12.0"
     const val fragmentKtx = "1.8.9"
 
     // ViewModel and LiveData
-    const val lifecycle = "2.9.2"
-    const val lifecycleExt = "2.2.0"
+    const val lifecycle = "2.11.0"
 
     // Room Database
-    const val room = "2.7.2"
+    const val room = "2.8.4"
 
     // Work Manager
-    const val work = "2.10.3"
+    const val work = "2.11.2"
 
     // Network & Serialization
     const val gson = "2.13.1"
@@ -54,9 +53,6 @@ object Versions {
 
     // Permissions
     const val permissions = "3.5.0"
-
-    // MultiDex
-    const val multidex = "2.0.1"
 
     // Muzei
     const val muzei = "3.4.2"
