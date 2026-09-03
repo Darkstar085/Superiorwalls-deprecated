@@ -22,12 +22,14 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.CollectionsBookmark
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.GridView
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
@@ -44,6 +46,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -74,10 +77,12 @@ fun SuperiorwallsHome(
     onFavoriteClick: (Wallpaper, Boolean) -> Unit,
     onCollectionClick: (Collection) -> Unit,
     onSettingsClick: () -> Unit,
+    onChangelogClick: () -> Unit,
 ) {
     var destination by rememberSaveable { mutableIntStateOf(HomeDestination.WALLPAPERS.ordinal) }
     var query by rememberSaveable { mutableStateOf("") }
     var searchOpen by rememberSaveable { mutableStateOf(false) }
+    var menuExpanded by remember { mutableStateOf(false) }
     val current = HomeDestination.entries[destination]
     val source = when (current) {
         HomeDestination.WALLPAPERS -> wallpapers
@@ -108,7 +113,7 @@ fun SuperiorwallsHome(
                                 leadingIcon = { Icon(Icons.Rounded.Search, null) },
                                 trailingIcon = {
                                     IconButton(onClick = { query = ""; searchOpen = false }) {
-                                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Close search")
+                                        Icon(Icons.Rounded.Search, "Close search")
                                     }
                                 },
                             )
@@ -135,6 +140,15 @@ fun SuperiorwallsHome(
                         actions = {
                             IconButton(onClick = { searchOpen = true }) { Icon(Icons.Rounded.Search, "Search") }
                             IconButton(onClick = onSettingsClick) { Icon(Icons.Rounded.Settings, "Settings") }
+                            Box {
+                                IconButton(onClick = { menuExpanded = true }) { Icon(Icons.Rounded.MoreVert, "More options") }
+                                DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
+                                    DropdownMenuItem(
+                                        text = { Text("Changelog") },
+                                        onClick = { menuExpanded = false; onChangelogClick() },
+                                    )
+                                }
+                            }
                         },
                         scrollBehavior = scrollBehavior,
                     )
