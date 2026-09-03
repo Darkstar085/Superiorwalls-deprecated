@@ -120,7 +120,7 @@ open class Preferences(private val context: Context) {
         prefs.unregisterOnSharedPreferenceChangeListener(listener)
     }
 
-    enum class ThemeKey(val value: Int, @StringRes val stringResId: Int) {
+    enum class ThemeKey(val value: Int, @get:StringRes val stringResId: Int) {
         LIGHT(0, R.string.light_theme),
         DARK(1, R.string.dark_theme),
         FOLLOW_SYSTEM(2, R.string.follow_system_theme);
