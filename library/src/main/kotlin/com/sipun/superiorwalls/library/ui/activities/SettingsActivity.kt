@@ -4,15 +4,14 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatDelegate
 import com.sipun.superiorwalls.library.BuildConfig
 import com.sipun.superiorwalls.library.data.Preferences
 import com.sipun.superiorwalls.library.extensions.context.setDefaultDashboardTheme
-import com.sipun.superiorwalls.library.ui.activities.base.BaseThemedActivity
+import com.sipun.superiorwalls.library.ui.activities.base.BasePermissionsRequestActivity
 import com.sipun.superiorwalls.library.ui.compose.SettingsScreen
 import com.sipun.superiorwalls.library.ui.compose.SuperiorwallsTheme
 
-open class SettingsActivity : BaseThemedActivity<Preferences>() {
+open class SettingsActivity : BasePermissionsRequestActivity<Preferences>() {
 
     override val preferences: Preferences by lazy { Preferences(this) }
 
