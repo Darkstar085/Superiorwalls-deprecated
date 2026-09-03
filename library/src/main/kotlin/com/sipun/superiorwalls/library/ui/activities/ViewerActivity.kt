@@ -8,7 +8,6 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.view.WindowCompat
@@ -37,7 +36,6 @@ import com.sipun.superiorwalls.library.ui.compose.SuperiorwallsTheme
 import com.sipun.superiorwalls.library.ui.compose.ViewerScreen
 import com.sipun.superiorwalls.library.ui.compose.WallpaperApplyDialog
 import com.sipun.superiorwalls.library.ui.compose.WallpaperDetailsSheet
-import com.sipun.superiorwalls.library.ui.fragments.WallpapersFragment.Companion.WALLPAPER_EXTRA
 import kotlinx.coroutines.launch
 
 open class ViewerActivity : BaseWallpaperApplierActivity<Preferences>() {
@@ -236,6 +234,8 @@ open class ViewerActivity : BaseWallpaperApplierActivity<Preferences>() {
     override fun canToggleSystemUIVisibility(): Boolean = intent?.getBooleanExtra(CAN_TOGGLE_SYSTEMUI_VISIBILITY_KEY, true) ?: true
 
     companion object {
+        internal const val WALLPAPER_EXTRA = "wallpaper"
+        internal const val WALLPAPER_IN_FAVS_EXTRA = "wallpaper_in_favs"
         internal const val MIN_TIME: Long = 3L * 60L * 60000L
         internal const val FAVORITES_MODIFIED = "favorites_modified"
         internal const val FAVORITES_MODIFIED_RESULT = 1
