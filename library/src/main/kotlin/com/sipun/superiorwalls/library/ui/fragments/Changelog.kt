@@ -106,7 +106,7 @@ class MyChangelogAdapter(context: Context) :
 enum class ChangelogType(
     val tag: String,
     val attr: String,
-    @LayoutRes val layout: Int,
+    @get:LayoutRes val layout: Int,
     val itemViewType: Int
 ) {
     TITLE("version", "title", R.layout.item_changelog_title, 0),
