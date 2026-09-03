@@ -1,0 +1,110 @@
+name: Superiorwalls Cleanup
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  cleanup:
+    name: Keep Latest Runs & Caches
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clean workflow runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for WORKFLOW in android.yml github-release.yml; do
+            echo "Cleaning runs for $WORKFLOW"
+
+            RUNS="$(gh api --paginate \
+              -H 'Accept: application/vnd.github+json' \
+              -H 'X-GitHub-Api-Version: 2026-03-10' \
+              "repos/$GH_REPO/actions/workflows/$WORKFLOW/runs?per_page=100" \
+              --jq '.workflow_runs[] | [.id, .created_at] | @tsv')"
+
+            LATEST_RUN="$(printf '%s\n' "$RUNS" | awk 'NF {print; exit}')"
+
+            if [ -z "$LATEST_RUN" ]; then
+              echo "No runs found."
+              continue
+            fi
+
+            LATEST_ID="${LATEST_RUN%%$'\t'*}"
+            echo "Keeping latest run: $LATEST_ID"
+
+            while IFS=$'\t' read -r RUN_ID CREATED_AT; do
+              [ -z "$RUN_ID" ] && continue
+              if [ "$RUN_ID" = "$LATEST_ID" ]; then
+                continue
+              fi
+
+              echo "Deleting run $RUN_ID ($CREATED_AT)"
+              if ! gh api --method DELETE \
+                -H 'Accept: application/vnd.github+json' \
+                -H 'X-GitHub-Api-Version: 2026-03-10' \
+                "repos/$GH_REPO/actions/runs/$RUN_ID"; then
+                echo "Could not delete run $RUN_ID (it may still be running or too new)."
+              fi
+            done <<< "$RUNS"
+          done
+
+      - name: Clean caches
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "Finding caches..."
+
+          CACHES="$(gh api --paginate \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/$GH_REPO/actions/caches?per_page=100&sort=created_at&direction=desc" \
+            --jq '.actions_caches[] | [.id, .key, .created_at] | @tsv')"
+
+          if [ -z "$CACHES" ]; then
+            echo "No caches found."
+            exit 0
+          fi
+
+          # setup-java cache keys end with a file hash. Treat everything before
+          # that final segment as the cache type and keep only its newest entry.
+          KEEP_IDS="$(printf '%s\n' "$CACHES" | awk -F '\t' '
+            {
+              key=$2
+              type=key
+              sub(/-[^-]+$/, "", type)
+              if (!(type in seen)) {
+                seen[type]=1
+                print $1
+              }
+            }
+          ' | sort -n)"
+
+          echo "Keeping latest cache for each cache type:"
+          printf '%s\n' "$KEEP_IDS"
+
+          while IFS=$'\t' read -r CACHE_ID CACHE_KEY CREATED_AT; do
+            [ -z "$CACHE_ID" ] && continue
+
+            if printf '%s\n' "$KEEP_IDS" | grep -Fxq "$CACHE_ID"; then
+              echo "Keeping cache $CACHE_ID ($CACHE_KEY, $CREATED_AT)"
+              continue
+            fi
+
+            echo "Deleting cache $CACHE_ID ($CACHE_KEY, $CREATED_AT)"
+            gh api --method DELETE \
+              -H 'Accept: application/vnd.github+json' \
+              -H 'X-GitHub-Api-Version: 2026-03-10' \
+              "repos/$GH_REPO/actions/caches/$CACHE_ID"
+          done <<< "$CACHES"

@@ -1,12 +1,6 @@
 name: Superiorwalls Release
 
 on:
-  push:
-    branches:
-      - master
-    paths:
-      - "buildSrc/src/main/java/Superiorwalls.kt"
-
   workflow_dispatch:
 
 permissions:
