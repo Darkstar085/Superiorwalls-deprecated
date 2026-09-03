@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Cached
@@ -43,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sipun.superiorwalls.library.R
@@ -167,7 +170,11 @@ fun SettingsScreen(
 
 @Composable
 private fun SettingsHeader(title: String, icon: ImageVector) {
-    Row(Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, top = 22.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+    Row(
+        Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, top = 22.dp, bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
         Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
         Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
     }
@@ -192,7 +199,7 @@ private fun SettingsAction(icon: ImageVector, title: String, summary: String = "
         leadingContent = { Icon(icon, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
         modifier = Modifier
             .fillMaxWidth()
-            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
+            .then(if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier),
     )
     HorizontalDivider(Modifier.padding(horizontal = 20.dp))
 }
@@ -203,7 +210,21 @@ private fun ThemeDialog(selected: Int, onSelect: (Int) -> Unit) {
     AlertDialog(
         onDismissRequest = { onSelect(selected) },
         title = { Text("App theme") },
-        text = { Column { themes.forEach { theme -> Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().clickable { onSelect(theme.value) }) { RadioButton(selected == theme.value, onClick = { onSelect(theme.value) }); Text(stringResource(theme.stringResId)) } } } },
+        text = {
+            Column(Modifier.selectableGroup()) {
+                themes.forEach { theme ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .selectable(selected == theme.value, role = Role.RadioButton) { onSelect(theme.value) },
+                    ) {
+                        RadioButton(selected == theme.value, onClick = { onSelect(theme.value) })
+                        Text(stringResource(theme.stringResId))
+                    }
+                }
+            }
+        },
         confirmButton = {},
     )
 }
@@ -213,7 +234,21 @@ private fun LanguageDialog(locales: List<ReadableLocale>, selected: String?, onS
     AlertDialog(
         onDismissRequest = { onSelect(selected ?: Locale.getDefault().toLanguageTag()) },
         title = { Text("App language") },
-        text = { Column { locales.forEach { locale -> Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().clickable { onSelect(locale.tag) }) { RadioButton(selected == locale.tag, onClick = { onSelect(locale.tag) }); Text(locale.name) } } } },
+        text = {
+            Column(Modifier.selectableGroup()) {
+                locales.forEach { locale ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .selectable(selected == locale.tag, role = Role.RadioButton) { onSelect(locale.tag) },
+                    ) {
+                        RadioButton(selected == locale.tag, onClick = { onSelect(locale.tag) })
+                        Text(locale.name)
+                    }
+                }
+            }
+        },
         confirmButton = { TextButton(onClick = { onSelect(selected ?: Locale.getDefault().toLanguageTag()) }) { Text("Done") } },
     )
 }
