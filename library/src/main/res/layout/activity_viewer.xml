@@ -4,23 +4,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_root_view"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/black">
 
     <ProgressBar
         android:id="@+id/loading"
-        style="?android:progressBarStyle"
+        style="?android:progressBarStyleLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:clickable="false"
-        android:focusable="false"
-        android:gravity="center" />
+        android:focusable="false" />
 
     <com.ortiz.touchview.TouchImageView
         android:id="@+id/wallpaper"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop" />
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/app_name" />
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
@@ -30,8 +31,7 @@
         android:clipChildren="false"
         android:clipToPadding="false"
         android:transitionName="appbar"
-        app:elevation="0dp"
-        tools:ignore="UnusedAttribute">
+        app:elevation="0dp">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
@@ -42,13 +42,13 @@
             android:clipChildren="false"
             android:clipToPadding="false"
             android:minHeight="?actionBarSize"
-            android:paddingBottom="8dp">
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="10dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:clipChildren="false"
-                android:gravity="center_vertical"
                 android:orientation="vertical">
 
                 <TextView
@@ -58,50 +58,47 @@
                     android:textAppearance="@style/TextAppearance.Superiorwalls.ToolbarTitle.Viewer"
                     android:textColor="@color/white"
                     android:textStyle="bold"
-                    tools:text="Title" />
+                    tools:text="Wallpaper title" />
 
                 <TextView
                     android:id="@+id/toolbar_subtitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="3dp"
                     android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Subtitle"
                     android:textColor="@color/white"
-                    tools:text="Subtitle" />
-
+                    tools:text="Author" />
             </LinearLayout>
-
         </androidx.appcompat.widget.Toolbar>
-
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/go_previous"
         android:contentDescription="@string/go_to_previous_wallpaper"
-        android:layout_width="@dimen/viewer_arrow_size"
-        android:layout_height="@dimen/viewer_arrow_size"
-        android:minHeight="@dimen/viewer_arrow_size"
-        android:padding="@dimen/viewer_arrow_padding"
-        android:layout_marginStart="@dimen/viewer_arrow_margin"
-        android:layout_marginLeft="@dimen/viewer_arrow_margin"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:minHeight="52dp"
+        android:padding="14dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
         android:layout_gravity="center_vertical|start"
         android:background="@drawable/ic_go_bg"
-        app:srcCompat="@drawable/ic_go_previous"
-        tools:ignore="UnusedAttribute" />
+        android:alpha="0.92"
+        app:srcCompat="@drawable/ic_go_previous" />
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/go_next"
         android:contentDescription="@string/go_to_next_wallpaper"
-        android:layout_width="@dimen/viewer_arrow_size"
-        android:layout_height="@dimen/viewer_arrow_size"
-        android:minHeight="@dimen/viewer_arrow_size"
-        android:padding="@dimen/viewer_arrow_padding"
-        android:layout_marginEnd="@dimen/viewer_arrow_margin"
-        android:layout_marginRight="@dimen/viewer_arrow_margin"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:minHeight="52dp"
+        android:padding="14dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
         android:layout_gravity="center_vertical|end"
         android:background="@drawable/ic_go_bg"
-        app:srcCompat="@drawable/ic_go_next"
-        tools:ignore="UnusedAttribute" />
+        android:alpha="0.92"
+        app:srcCompat="@drawable/ic_go_next" />
 
     <com.sipun.superiorwalls.library.ui.widgets.SuperiorwallsBottomNavigationView
         android:id="@+id/bottom_navigation"

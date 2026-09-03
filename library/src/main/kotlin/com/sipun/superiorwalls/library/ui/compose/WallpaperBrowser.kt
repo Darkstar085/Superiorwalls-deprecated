@@ -1,13 +1,13 @@
 package com.sipun.superiorwalls.library.ui.compose
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,16 +16,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,7 +41,6 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.sipun.superiorwalls.library.data.models.Wallpaper
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun WallpaperBrowser(
     wallpapers: List<Wallpaper>,
@@ -55,11 +57,11 @@ fun WallpaperBrowser(
     }
 
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 150.dp),
+        columns = GridCells.Adaptive(minSize = 156.dp),
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 24.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+        contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 8.dp, bottom = 24.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         items(wallpapers, key = { it.url }) { wallpaper ->
             WallpaperCard(
@@ -67,7 +69,7 @@ fun WallpaperBrowser(
                 canModifyFavorites = canModifyFavorites,
                 onClick = { onWallpaperClick(wallpaper) },
                 onFavoriteClick = { onFavoriteClick(wallpaper, it) },
-                modifier = Modifier.animateItem()
+                modifier = Modifier.animateContentSize(),
             )
         }
     }
@@ -91,7 +93,7 @@ private fun WallpaperCard(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(230.dp)
+                .height(250.dp)
                 .clip(RoundedCornerShape(24.dp))
         ) {
             AsyncImage(
@@ -100,57 +102,47 @@ private fun WallpaperCard(
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop,
             )
-
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            0f to Color.Transparent,
-                            .58f to Color.Transparent,
-                            1f to Color.Black.copy(alpha = .72f)
-                        )
+                modifier = Modifier.fillMaxSize().background(
+                    Brush.verticalGradient(
+                        0f to Color.Transparent,
+                        .55f to Color.Transparent,
+                        1f to Color.Black.copy(alpha = .78f),
                     )
+                )
             )
-
             if (canModifyFavorites) {
                 Surface(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(10.dp),
-                    shape = RoundedCornerShape(50),
-                    color = MaterialTheme.colorScheme.surface.copy(alpha = .82f),
+                    modifier = Modifier.align(Alignment.TopEnd).padding(10.dp),
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = .88f),
                 ) {
                     IconButton(
                         onClick = { onFavoriteClick(!wallpaper.isInFavorites) },
-                        modifier = Modifier.size(42.dp),
+                        modifier = Modifier.size(44.dp),
                     ) {
-                        Text(
-                            text = if (wallpaper.isInFavorites) "♥" else "♡",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.primary,
+                        Icon(
+                            if (wallpaper.isInFavorites) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                            contentDescription = if (wallpaper.isInFavorites) "Remove from favorites" else "Add to favorites",
+                            tint = if (wallpaper.isInFavorites) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
                         )
                     }
                 }
             }
-
             Column(
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .fillMaxWidth()
-                    .padding(14.dp)
-                    .animateContentSize()
+                modifier = Modifier.align(Alignment.BottomStart).fillMaxWidth().padding(15.dp)
             ) {
                 Text(
-                    text = wallpaper.name,
+                    wallpaper.name,
                     color = Color.White,
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 wallpaper.author?.takeIf { it.isNotBlank() }?.let {
+                    Spacer(Modifier.height(3.dp))
                     Text(
-                        text = it,
+                        it,
                         color = Color.White.copy(alpha = .78f),
                         style = MaterialTheme.typography.bodySmall,
                         maxLines = 1,
