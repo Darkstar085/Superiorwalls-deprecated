@@ -23,13 +23,21 @@ object Libs {
     private const val materialComponents =
         "com.google.android.material:material:${Versions.materialComponents}"
     private const val activityKtx = "androidx.activity:activity-ktx:${Versions.activityKtx}"
+    private const val activityCompose = "androidx.activity:activity-compose:${Versions.activityCompose}"
     private const val fragmentKtx = "androidx.fragment:fragment-ktx:${Versions.fragmentKtx}"
+
+    // Compose
+    private const val composeBom = "androidx.compose:compose-bom:${Versions.composeBom}"
+    private const val composeMaterial3 = "androidx.compose.material3:material3"
+    private const val composeIcons = "androidx.compose.material:material-icons-extended"
 
     // ViewModel and LiveData
     private const val livedataKtx =
         "androidx.lifecycle:lifecycle-livedata-ktx:${Versions.lifecycle}"
     private const val viewmodelKtx =
         "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycle}"
+    private const val viewmodelCompose =
+        "androidx.lifecycle:lifecycle-viewmodel-compose:${Versions.lifecycle}"
 
     // Room Database
     private const val room = "androidx.room:room-ktx:${Versions.room}"
@@ -83,9 +91,14 @@ object Libs {
         preference,
         materialComponents,
         activityKtx,
+        activityCompose,
         fragmentKtx,
+        composeBom,
+        composeMaterial3,
+        composeIcons,
         livedataKtx,
         viewmodelKtx,
+        viewmodelCompose,
         room,
         work,
         gson,
