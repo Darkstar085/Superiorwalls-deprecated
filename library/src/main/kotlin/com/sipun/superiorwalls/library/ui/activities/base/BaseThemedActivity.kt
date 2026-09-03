@@ -1,10 +1,8 @@
 package com.sipun.superiorwalls.library.ui.activities.base
 
 import android.os.Bundle
-import androidx.annotation.IdRes
 import androidx.annotation.StyleRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import com.sipun.superiorwalls.library.R
 import com.sipun.superiorwalls.library.data.Preferences
 import com.sipun.superiorwalls.library.extensions.context.color
@@ -21,9 +19,9 @@ import com.sipun.superiorwalls.library.extensions.utils.postDelayed
 
 abstract class BaseThemedActivity<out P : Preferences> : AppCompatActivity() {
 
-    private var wasUsingAmoled: Boolean = false
-    private var useMaterialYou: Boolean = false
-    private var coloredNavbar: Boolean = false
+    private var wasUsingAmoled = false
+    private var useMaterialYou = false
+    private var coloredNavbar = false
 
     @StyleRes
     open fun defaultTheme(): Int = R.style.MyApp_Default
@@ -48,7 +46,8 @@ abstract class BaseThemedActivity<out P : Preferences> : AppCompatActivity() {
         super.onResume()
         if (wasUsingAmoled != preferences.usesAmoledTheme
             || useMaterialYou != preferences.useMaterialYou
-            || coloredNavbar != preferences.shouldColorNavbar) {
+            || coloredNavbar != preferences.shouldColorNavbar
+        ) {
             onThemeChanged()
         }
     }
@@ -60,16 +59,16 @@ abstract class BaseThemedActivity<out P : Preferences> : AppCompatActivity() {
         coloredNavbar = preferences.shouldColorNavbar
     }
 
-    internal fun onThemeChanged() {
+    private fun onThemeChanged() {
         postDelayed(2) { restart() }
     }
 
     @StyleRes
-    private fun getRightTheme(): Int {
-        return if (preferences.useMaterialYou) {
-            if (preferences.usesAmoledTheme) amoledMaterialYouTheme() else defaultMaterialYouTheme()
-        } else
-            if (preferences.usesAmoledTheme) amoledTheme() else defaultTheme()
+    private fun getRightTheme(): Int = when {
+        preferences.useMaterialYou && preferences.usesAmoledTheme -> amoledMaterialYouTheme()
+        preferences.useMaterialYou -> defaultMaterialYouTheme()
+        preferences.usesAmoledTheme -> amoledTheme()
+        else -> defaultTheme()
     }
 
     private fun setCustomTheme() {
@@ -77,38 +76,14 @@ abstract class BaseThemedActivity<out P : Preferences> : AppCompatActivity() {
         setDefaultDashboardTheme()
         resolveColor(
             com.google.android.material.R.attr.colorPrimaryDark,
-            color(R.color.primaryDark)
+            color(R.color.primaryDark),
         ).let {
             statusBarColor = it
-            if (shouldChangeStatusBarLightStatus)
-                statusBarLight = !it.isDark
+            if (shouldChangeStatusBarLightStatus) statusBarLight = !it.isDark
         }
         getRightNavigationBarColor().let {
             navigationBarColor = it
-            if (shouldChangeNavigationBarLightStatus)
-                navigationBarLight = !it.isDark
-        }
-    }
-
-    fun replaceFragment(
-        fragment: Fragment?,
-        fragmentTag: String = "fragment",
-        @IdRes fragmentContainerId: Int = R.id.fragments_container,
-        animate: Boolean = true
-    ) {
-        fragment ?: return
-        try {
-            val transaction = supportFragmentManager.beginTransaction()
-            if (animate && preferences.animationsEnabled) {
-                transaction.setCustomAnimations(
-                    R.anim.fragment_fade_in, R.anim.fragment_fade_out,
-                    R.anim.fragment_fade_in, R.anim.fragment_fade_out
-                )
-            }
-            transaction
-                .replace(fragmentContainerId, fragment, fragmentTag)
-                .commit()
-        } catch (_: Exception) {
+            if (shouldChangeNavigationBarLightStatus) navigationBarLight = !it.isDark
         }
     }
 

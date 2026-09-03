@@ -12,12 +12,9 @@ object Versions {
     const val coroutines = "1.10.2"
 
     const val appcompat = "1.7.1"
-    const val cardView = "1.0.0"
     const val palette = "1.0.0"
-    const val preference = "1.2.1"
     const val materialComponents = "1.12.0"
     const val activityKtx = "1.10.1"
-    const val fragmentKtx = "1.8.9"
 
     const val composeBom = "2026.08.00"
     const val activityCompose = "1.13.0"
@@ -32,7 +29,6 @@ object Versions {
     const val retrofit = "3.0.0"
 
     const val coil = "2.7.0"
-    const val touchImageView = "3.7.1"
 
     const val harmonicColors = "1.0.0"
     const val permissions = "3.5.0"
