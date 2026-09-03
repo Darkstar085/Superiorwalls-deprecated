@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -48,10 +47,14 @@ fun WallpaperBrowser(
     onWallpaperClick: (Wallpaper) -> Unit,
     onFavoriteClick: (Wallpaper, Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    isLoading: Boolean = false,
+    emptyTitle: String = "No wallpapers found",
+    emptyMessage: String = "Try another search or refresh your collection.",
 ) {
     if (wallpapers.isEmpty()) {
         Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+            if (isLoading) CircularProgressIndicator()
+            else EmptyState(emptyTitle, emptyMessage)
         }
         return
     }
@@ -59,18 +62,12 @@ fun WallpaperBrowser(
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 156.dp),
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 8.dp, bottom = 24.dp),
+        contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 8.dp, bottom = 28.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         items(wallpapers, key = { it.url }) { wallpaper ->
-            WallpaperCard(
-                wallpaper = wallpaper,
-                canModifyFavorites = canModifyFavorites,
-                onClick = { onWallpaperClick(wallpaper) },
-                onFavoriteClick = { onFavoriteClick(wallpaper, it) },
-                modifier = Modifier.animateContentSize(),
-            )
+            WallpaperCard(wallpaper, canModifyFavorites, { onWallpaperClick(wallpaper) }, { onFavoriteClick(wallpaper, it) }, Modifier.animateContentSize())
         }
     }
 }
@@ -90,65 +87,24 @@ private fun WallpaperCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(250.dp)
-                .clip(RoundedCornerShape(24.dp))
-        ) {
+        Box(Modifier.fillMaxWidth().height(250.dp).clip(RoundedCornerShape(24.dp))) {
             AsyncImage(
                 model = wallpaper.thumbnail?.takeIf { it.isNotBlank() } ?: wallpaper.url,
                 contentDescription = wallpaper.name,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop,
             )
-            Box(
-                modifier = Modifier.fillMaxSize().background(
-                    Brush.verticalGradient(
-                        0f to Color.Transparent,
-                        .55f to Color.Transparent,
-                        1f to Color.Black.copy(alpha = .78f),
-                    )
-                )
-            )
+            Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0f to Color.Transparent, .55f to Color.Transparent, 1f to Color.Black.copy(alpha = .78f))))
             if (canModifyFavorites) {
-                Surface(
-                    modifier = Modifier.align(Alignment.TopEnd).padding(10.dp),
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.surface.copy(alpha = .88f),
-                ) {
-                    IconButton(
-                        onClick = { onFavoriteClick(!wallpaper.isInFavorites) },
-                        modifier = Modifier.size(44.dp),
-                    ) {
-                        Icon(
-                            if (wallpaper.isInFavorites) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-                            contentDescription = if (wallpaper.isInFavorites) "Remove from favorites" else "Add to favorites",
-                            tint = if (wallpaper.isInFavorites) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                        )
+                Surface(Modifier.align(Alignment.TopEnd).padding(10.dp), CircleShape, color = MaterialTheme.colorScheme.surface.copy(alpha = .88f)) {
+                    IconButton(onClick = { onFavoriteClick(!wallpaper.isInFavorites) }, Modifier.size(44.dp)) {
+                        Icon(if (wallpaper.isInFavorites) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder, if (wallpaper.isInFavorites) "Remove from favorites" else "Add to favorites", tint = MaterialTheme.colorScheme.primary)
                     }
                 }
             }
-            Column(
-                modifier = Modifier.align(Alignment.BottomStart).fillMaxWidth().padding(15.dp)
-            ) {
-                Text(
-                    wallpaper.name,
-                    color = Color.White,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                wallpaper.author?.takeIf { it.isNotBlank() }?.let {
-                    Spacer(Modifier.height(3.dp))
-                    Text(
-                        it,
-                        color = Color.White.copy(alpha = .78f),
-                        style = MaterialTheme.typography.bodySmall,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
+            Column(Modifier.align(Alignment.BottomStart).fillMaxWidth().padding(15.dp)) {
+                Text(wallpaper.name, color = Color.White, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                wallpaper.author?.takeIf { it.isNotBlank() }?.let { Spacer(Modifier.height(3.dp)); Text(it, color = Color.White.copy(alpha = .78f), style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis) }
             }
         }
     }

@@ -7,6 +7,13 @@
     android:layout_height="match_parent"
     android:background="@color/black">
 
+    <com.ortiz.touchview.TouchImageView
+        android:id="@+id/wallpaper"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/app_name"
+        android:scaleType="centerCrop" />
+
     <ProgressBar
         android:id="@+id/loading"
         style="?android:progressBarStyleLarge"
@@ -15,13 +22,6 @@
         android:layout_gravity="center"
         android:clickable="false"
         android:focusable="false" />
-
-    <com.ortiz.touchview.TouchImageView
-        android:id="@+id/wallpaper"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="centerCrop"
-        android:contentDescription="@string/app_name" />
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
@@ -32,7 +32,6 @@
         android:clipToPadding="false"
         android:transitionName="appbar"
         app:elevation="0dp">
-
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             style="?toolbarStyle"
@@ -44,27 +43,28 @@
             android:minHeight="?actionBarSize"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
-            android:paddingBottom="10dp">
-
+            android:paddingBottom="12dp">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
-
                 <TextView
                     android:id="@+id/toolbar_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:maxLines="2"
+                    android:ellipsize="end"
                     android:textAppearance="@style/TextAppearance.Superiorwalls.ToolbarTitle.Viewer"
                     android:textColor="@color/white"
                     android:textStyle="bold"
                     tools:text="Wallpaper title" />
-
                 <TextView
                     android:id="@+id/toolbar_subtitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
                     android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Subtitle"
                     android:textColor="@color/white"
                     tools:text="Author" />
@@ -74,30 +74,26 @@
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/go_previous"
-        android:contentDescription="@string/go_to_previous_wallpaper"
-        android:layout_width="52dp"
-        android:layout_height="52dp"
-        android:minHeight="52dp"
-        android:padding="14dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
+        android:layout_width="54dp"
+        android:layout_height="54dp"
         android:layout_gravity="center_vertical|start"
+        android:layout_marginStart="16dp"
         android:background="@drawable/ic_go_bg"
-        android:alpha="0.92"
+        android:contentDescription="@string/go_to_previous_wallpaper"
+        android:padding="15dp"
+        android:alpha="0.94"
         app:srcCompat="@drawable/ic_go_previous" />
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/go_next"
-        android:contentDescription="@string/go_to_next_wallpaper"
-        android:layout_width="52dp"
-        android:layout_height="52dp"
-        android:minHeight="52dp"
-        android:padding="14dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_width="54dp"
+        android:layout_height="54dp"
         android:layout_gravity="center_vertical|end"
+        android:layout_marginEnd="16dp"
         android:background="@drawable/ic_go_bg"
-        android:alpha="0.92"
+        android:contentDescription="@string/go_to_next_wallpaper"
+        android:padding="15dp"
+        android:alpha="0.94"
         app:srcCompat="@drawable/ic_go_next" />
 
     <com.sipun.superiorwalls.library.ui.widgets.SuperiorwallsBottomNavigationView
@@ -107,6 +103,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="@drawable/gradient"
+        android:elevation="0dp"
         app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_actions_menu" />
 

@@ -14,8 +14,8 @@ import com.sipun.superiorwalls.library.data.models.Collection
 import com.sipun.superiorwalls.library.data.models.Wallpaper
 import com.sipun.superiorwalls.library.data.viewmodels.WallpapersDataViewModel
 import com.sipun.superiorwalls.library.ui.activities.base.BaseChangelogDialogActivity
-import com.sipun.superiorwalls.library.ui.activities.base.BaseFavoritesConnectedActivity
 import com.sipun.superiorwalls.library.ui.compose.SuperiorwallsHome
+import com.sipun.superiorwalls.library.ui.fragments.WallpapersFragment
 
 @Suppress("LeakingThis", "MemberVisibilityCanBePrivate")
 abstract class SuperiorwallsActivity : BaseChangelogDialogActivity<Preferences>() {
@@ -30,32 +30,18 @@ abstract class SuperiorwallsActivity : BaseChangelogDialogActivity<Preferences>(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_fragments_bottom_navigation)
-
         findViewById<View>(R.id.toolbar)?.visibility = View.GONE
         findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
         val container = findViewById<ViewGroup>(R.id.fragments_container)
         composeView = ComposeView(this).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
         }
-        container.addView(
-            composeView,
-            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT),
-        )
+        container.addView(composeView, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
 
-        wallpapersViewModel.observeWallpapers(this) {
-            wallpaperItems = it
-            renderHome()
-        }
-        wallpapersViewModel.observeCollections(this) {
-            collectionItems = it
-            renderHome()
-        }
-        wallpapersViewModel.observeFavorites(this) {
-            favoriteItems = it
-            renderHome()
-        }
+        wallpapersViewModel.observeWallpapers(this) { wallpaperItems = it; renderHome() }
+        wallpapersViewModel.observeCollections(this) { collectionItems = it; renderHome() }
+        wallpapersViewModel.observeFavorites(this) { favoriteItems = it; renderHome() }
         wallpapersViewModel.errorListener = ::showDataErrorToastIfNeeded
-
         renderHome()
         loadWallpapersData(true)
         requestNotificationsPermission()
@@ -65,8 +51,7 @@ abstract class SuperiorwallsActivity : BaseChangelogDialogActivity<Preferences>(
         val dark = when (preferences.currentTheme) {
             Preferences.ThemeKey.DARK -> true
             Preferences.ThemeKey.LIGHT -> false
-            Preferences.ThemeKey.FOLLOW_SYSTEM ->
-                (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+            Preferences.ThemeKey.FOLLOW_SYSTEM -> (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
         }
         composeView?.setContent {
             SuperiorwallsHome(
@@ -80,9 +65,7 @@ abstract class SuperiorwallsActivity : BaseChangelogDialogActivity<Preferences>(
                 onWallpaperClick = ::openWallpaper,
                 onFavoriteClick = ::toggleFavorite,
                 onCollectionClick = ::openCollection,
-                onSettingsClick = {
-                    startActivity(Intent(this, SettingsActivity::class.java))
-                },
+                onSettingsClick = { startActivity(Intent(this, SettingsActivity::class.java)) },
             )
         }
     }
@@ -105,10 +88,7 @@ abstract class SuperiorwallsActivity : BaseChangelogDialogActivity<Preferences>(
 
     private fun toggleFavorite(wallpaper: Wallpaper, checked: Boolean) {
         val changed = if (checked) addToFavorites(wallpaper) else removeFromFavorites(wallpaper)
-        if (changed) {
-            wallpaper.isInFavorites = checked
-            renderHome()
-        }
+        if (changed) { wallpaper.isInFavorites = checked; renderHome() }
     }
 
     override fun onFavoritesUpdated(favorites: List<Wallpaper>) {
