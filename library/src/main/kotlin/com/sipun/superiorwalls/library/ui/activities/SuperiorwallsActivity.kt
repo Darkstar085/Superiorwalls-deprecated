@@ -3,11 +3,11 @@ package com.sipun.superiorwalls.library.ui.activities
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
-import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.activity.compose.setContent
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.sipun.superiorwalls.library.R
 import com.sipun.superiorwalls.library.data.Preferences
 import com.sipun.superiorwalls.library.data.models.Collection
@@ -22,38 +22,19 @@ abstract class SuperiorwallsActivity : BaseChangelogDialogActivity<Preferences>(
 
     override val preferences: Preferences by lazy { Preferences(this) }
 
-    private var composeView: ComposeView? = null
-    private var wallpaperItems: List<Wallpaper> = emptyList()
-    private var collectionItems: List<Collection> = emptyList()
-    private var favoriteItems: List<Wallpaper> = emptyList()
+    private var wallpaperItems by mutableStateOf<List<Wallpaper>>(emptyList())
+    private var collectionItems by mutableStateOf<List<Collection>>(emptyList())
+    private var favoriteItems by mutableStateOf<List<Wallpaper>>(emptyList())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_fragments_bottom_navigation)
-        findViewById<View>(R.id.toolbar)?.visibility = View.GONE
-        findViewById<View>(R.id.bottom_navigation)?.visibility = View.GONE
-        val container = findViewById<ViewGroup>(R.id.fragments_container)
-        composeView = ComposeView(this).apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-        }
-        container.addView(composeView, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
-
-        wallpapersViewModel.observeWallpapers(this) { wallpaperItems = it; renderHome() }
-        wallpapersViewModel.observeCollections(this) { collectionItems = it; renderHome() }
-        wallpapersViewModel.observeFavorites(this) { favoriteItems = it; renderHome() }
-        wallpapersViewModel.errorListener = ::showDataErrorToastIfNeeded
-        renderHome()
-        loadWallpapersData(true)
-        requestNotificationsPermission()
-    }
-
-    private fun renderHome() {
-        val dark = when (preferences.currentTheme) {
-            Preferences.ThemeKey.DARK -> true
-            Preferences.ThemeKey.LIGHT -> false
-            Preferences.ThemeKey.FOLLOW_SYSTEM -> (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-        }
-        composeView?.setContent {
+        setContent {
+            val dark = when (preferences.currentTheme) {
+                Preferences.ThemeKey.DARK -> true
+                Preferences.ThemeKey.LIGHT -> false
+                Preferences.ThemeKey.FOLLOW_SYSTEM ->
+                    (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+            }
             SuperiorwallsHome(
                 wallpapers = wallpaperItems,
                 collections = collectionItems,
@@ -68,6 +49,13 @@ abstract class SuperiorwallsActivity : BaseChangelogDialogActivity<Preferences>(
                 onSettingsClick = { startActivity(Intent(this, SettingsActivity::class.java)) },
             )
         }
+
+        wallpapersViewModel.observeWallpapers(this) { wallpaperItems = it }
+        wallpapersViewModel.observeCollections(this) { collectionItems = it }
+        wallpapersViewModel.observeFavorites(this) { favoriteItems = it }
+        wallpapersViewModel.errorListener = ::showDataErrorToastIfNeeded
+        loadWallpapersData(true)
+        requestNotificationsPermission()
     }
 
     private fun openWallpaper(wallpaper: Wallpaper) {
@@ -87,19 +75,19 @@ abstract class SuperiorwallsActivity : BaseChangelogDialogActivity<Preferences>(
     }
 
     private fun toggleFavorite(wallpaper: Wallpaper, checked: Boolean) {
+        if (!canModifyFavorites()) {
+            onFavoritesLocked()
+            return
+        }
         val changed = if (checked) addToFavorites(wallpaper) else removeFromFavorites(wallpaper)
-        if (changed) { wallpaper.isInFavorites = checked; renderHome() }
+        if (changed) wallpaper.isInFavorites = checked
     }
 
     override fun onFavoritesUpdated(favorites: List<Wallpaper>) {
         favoriteItems = favorites
-        renderHome()
     }
 
-    override fun onDestroy() {
-        composeView = null
-        super.onDestroy()
-    }
+    override val snackbarAnchorId: Int = android.R.id.content
 
     private fun showDataErrorToastIfNeeded(error: WallpapersDataViewModel.DataError) {
         val message = when (error) {

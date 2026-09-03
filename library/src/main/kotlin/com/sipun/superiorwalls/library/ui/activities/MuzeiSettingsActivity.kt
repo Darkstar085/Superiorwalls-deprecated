@@ -1,170 +1,112 @@
 package com.sipun.superiorwalls.library.ui.activities
 
-import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
-import android.view.MenuItem
-import android.view.View
-import android.widget.LinearLayout
-import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.SwitchCompat
-import androidx.appcompat.widget.Toolbar
+import androidx.activity.compose.setContent
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.sipun.superiorwalls.library.R
 import com.sipun.superiorwalls.library.data.Preferences
 import com.sipun.superiorwalls.library.data.models.Collection
 import com.sipun.superiorwalls.library.data.viewmodels.WallpapersDataViewModel
-import com.sipun.superiorwalls.library.extensions.context.findView
 import com.sipun.superiorwalls.library.extensions.context.isNetworkAvailable
 import com.sipun.superiorwalls.library.extensions.context.string
-import com.sipun.superiorwalls.library.extensions.fragments.mdDialog
-import com.sipun.superiorwalls.library.extensions.fragments.message
-import com.sipun.superiorwalls.library.extensions.fragments.negativeButton
-import com.sipun.superiorwalls.library.extensions.fragments.positiveButton
-import com.sipun.superiorwalls.library.extensions.fragments.title
-import com.sipun.superiorwalls.library.extensions.resources.hasContent
 import com.sipun.superiorwalls.library.extensions.utils.lazyViewModel
-import com.sipun.superiorwalls.library.extensions.views.gone
-import com.sipun.superiorwalls.library.extensions.views.goneIf
-import com.sipun.superiorwalls.library.extensions.views.tint
 import com.sipun.superiorwalls.library.muzei.SuperiorwallsArtProvider
 import com.sipun.superiorwalls.library.ui.activities.base.BaseThemedActivity
+import com.sipun.superiorwalls.library.ui.compose.CollectionSelectionDialog
+import com.sipun.superiorwalls.library.ui.compose.MuzeiSettingsScreen
+import com.sipun.superiorwalls.library.ui.compose.SuperiorwallsTheme
+import kotlinx.coroutines.delay
 
 open class MuzeiSettingsActivity : BaseThemedActivity<Preferences>() {
 
     override val preferences: Preferences by lazy { Preferences(this) }
 
-    private var dialog: AlertDialog? = null
-    private var selectedCollections = ""
-
-    private val collsSummaryText: TextView? by findView(R.id.choose_collections_summary)
-    private val wifiOnlyRefreshSwitch: SwitchCompat? by findView(R.id.wifi_only_refresh_switch)
+    private var selectedCollections by mutableStateOf("")
+    private var refreshOnWifiOnly by mutableStateOf(false)
+    private var showCollectionDialog by mutableStateOf(false)
+    private var finishing = false
 
     open val viewModel: WallpapersDataViewModel by lazyViewModel()
 
-    @SuppressLint("WrongViewCast", "MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_muzei_settings)
-        viewModel.loadData(
-            string(R.string.json_url),
-            loadCollections = true, loadFavorites = false, force = false
-        )
-
         selectedCollections = preferences.muzeiCollections
-        wifiOnlyRefreshSwitch?.isChecked = preferences.refreshMuzeiOnWiFiOnly
+        refreshOnWifiOnly = preferences.refreshMuzeiOnWiFiOnly
+        viewModel.loadData(string(R.string.json_url), loadCollections = true, loadFavorites = false, force = false)
 
-        val toolbar: Toolbar? by findView(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = getString(R.string.muzei_settings)
-        toolbar?.tint()
-
-        findViewById<View?>(R.id.other_divider)?.goneIf(!shouldShowCollections())
-
-        findViewById<LinearLayout>(R.id.wifi_only).setOnClickListener {
-            wifiOnlyRefreshSwitch?.toggle()
-            saveChanges()
-        }
-
-        if (selectedCollections.hasContent()) {
-            collsSummaryText?.text = selectedCollections
-        } else {
-            collsSummaryText?.text = getString(R.string.no_collections_selected)
-        }
-
-        if (shouldShowCollections()) {
-            findViewById<View?>(R.id.choose_collections)?.setOnClickListener {
-                if (isNetworkAvailable()) {
-                    if (viewModel.collections.isNotEmpty())
-                        showChooseCollectionsDialog()
-                } else {
-                    showNotConnectedDialog()
+        setContent {
+            var collections by remember { mutableStateOf<List<Collection>>(emptyList()) }
+            LaunchedEffect(Unit) {
+                repeat(40) {
+                    collections = viewModel.collections
+                    if (collections.isNotEmpty()) return@LaunchedEffect
+                    delay(50)
+                }
+                collections = viewModel.collections
+            }
+            val darkTheme = when (preferences.currentTheme.value) {
+                Preferences.ThemeKey.DARK.value -> true
+                Preferences.ThemeKey.LIGHT.value -> false
+                else -> resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+            }
+            SuperiorwallsTheme(darkTheme = darkTheme, dynamicColor = preferences.useMaterialYou, amoled = preferences.usesAmoledTheme) {
+                MuzeiSettingsScreen(
+                    selectedCollections = selectedCollections,
+                    refreshOnWifiOnly = refreshOnWifiOnly,
+                    collections = collections,
+                    showCollections = shouldShowCollections(),
+                    onSelectedCollectionsChange = { selectedCollections = it; saveChanges() },
+                    onRefreshOnWifiOnlyChange = { refreshOnWifiOnly = it; saveChanges() },
+                    onChooseCollections = {
+                        if (isNetworkAvailable()) {
+                            if (collections.isNotEmpty()) showCollectionDialog = true
+                        } else showNotConnectedDialog()
+                    },
+                    onBack = ::doFinish,
+                )
+                if (showCollectionDialog) {
+                    CollectionSelectionDialog(
+                        collections = collections,
+                        selectedCollections = selectedCollections,
+                        onDismiss = { showCollectionDialog = false },
+                        onConfirm = { selectedCollections = it; saveChanges(); showCollectionDialog = false },
+                    )
                 }
             }
-        } else {
-            findViewById<View?>(R.id.choose_collections)?.gone()
         }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) doFinish()
-        return super.onOptionsItemSelected(item)
     }
 
     private fun saveChanges() {
-        preferences.refreshMuzeiOnWiFiOnly = wifiOnlyRefreshSwitch?.isChecked ?: false
+        preferences.refreshMuzeiOnWiFiOnly = refreshOnWifiOnly
         preferences.muzeiCollections = selectedCollections
     }
 
     private fun showNotConnectedDialog() {
-        destroyDialog()
-        dialog = mdDialog {
-            message(R.string.muzei_not_connected_content)
-            positiveButton(android.R.string.ok)
-        }
-        dialog?.show()
-    }
-
-    private fun showChooseCollectionsDialog() {
-        destroyDialog()
-        val collections = ArrayList<Collection>()
-        collections.addAll(viewModel.collections.distinct())
-        collections.add(0, Collection("Favorites"))
-        collections.distinct()
-        val eachSelectedCollection = selectedCollections.split(",").map { it.trim() }.distinct()
-        val mappedCollections = ArrayList(collections.map {
-            Pair(it, eachSelectedCollection.any { co -> co.equals(it.displayName, true) })
-        })
-
-        dialog = mdDialog {
-            title(R.string.choose_collections_title)
-            setMultiChoiceItems(
-                mappedCollections.map { it.first.displayName }.toTypedArray(),
-                mappedCollections.map { it.second }.toBooleanArray()
-            ) { _, i, checked ->
-                mappedCollections[i] = Pair(mappedCollections[i].first, checked)
-            }
-            positiveButton(android.R.string.ok) { d ->
-                selectedCollections = mappedCollections.filter { it.second }
-                    .joinToString(", ") { it.first.displayName }
-                if (selectedCollections.hasContent()) {
-                    collsSummaryText?.text = selectedCollections
-                } else {
-                    collsSummaryText?.text = getString(R.string.no_collections_selected)
-                }
-                saveChanges()
-                d.dismiss()
-            }
-            negativeButton(android.R.string.cancel)
-        }
-        dialog?.show()
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setMessage(R.string.muzei_not_connected_content)
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
     }
 
     private fun doFinish() {
-        destroyDialog()
+        if (finishing) return
+        finishing = true
+        showCollectionDialog = false
         saveChanges()
-        try {
-            viewModel.destroy(this)
-        } catch (ignored: Exception) {
-        }
-        try {
-            startService(getProviderIntent()?.apply {
-                putExtra("restart", true)
-            })
-        } catch (_: Exception) {
-        }
+        try { viewModel.destroy(this) } catch (_: Exception) { }
+        try { startService(getProviderIntent()?.apply { putExtra("restart", true) }) } catch (_: Exception) { }
         supportFinishAfterTransition()
     }
 
-    private fun destroyDialog() {
-        dialog?.dismiss()
-        dialog = null
-    }
-
     override fun onDestroy() {
+        if (!finishing) doFinish()
         super.onDestroy()
-        doFinish()
     }
 
     open fun shouldShowCollections(): Boolean = true
